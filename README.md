@@ -4,6 +4,8 @@
 
 一个安静的个人小站，用来记录学习和手作项目。
 
+:link: [cecilia11-cc.github.io/douhuamiao-site](https://cecilia11-cc.github.io/douhuamiao-site)
+
 ---
 
 ## 关于我
