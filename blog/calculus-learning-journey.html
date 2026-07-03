@@ -236,6 +236,35 @@
     white-space: nowrap;
   }
 
+  /* ===== 按钮 ===== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--green), var(--green-light));
+    color: #fff;
+    padding: 0.6rem 1.6rem;
+    border-radius: var(--radius-full);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all var(--transition);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(46,125,50,0.2);
+  }
+  .btn::after {
+    content: '→';
+    transition: transform 0.2s;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46,125,50,0.35);
+  }
+  .btn:hover::after {
+    transform: translateX(3px);
+  }
+
   /* ===== 信息框 ===== */
   .insight-box {
     background: linear-gradient(135deg, rgba(255,248,200,0.5), rgba(255,243,224,0.5));
@@ -762,7 +791,7 @@
   <div class="ornament">对话来源：与 DeepSeek 的微积分学习讨论 · 2026 年 7 月</div>
 
   <p style="text-align:center; margin-top:1.5rem;">
-    <a href="../index.html#blog" class="btn" style="display:inline-flex;">← 返回小记列表</a>
+    <a href="../index.html#blog" style="display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg, var(--green), var(--green-light));color:#fff;padding:0.6rem 1.6rem;border-radius:var(--radius-full);text-decoration:none;font-weight:600;font-size:0.95rem;box-shadow:0 2px 8px rgba(46,125,50,0.2);transition:all var(--transition);">← 返回小记列表</a>
   </p>
 
 </div>
