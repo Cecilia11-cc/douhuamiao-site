@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>进阶积分：错题复盘与技巧内化 — 豆花喵的小栈</title>
+<style>
+  :root{--green:#2E7D32;--green-light:#4CAF50;--green-pale:#e8f5e9;--blue:#1976D2;--blue-light:#42A5F5;--blue-pale:#e3f2fd;--purple:#7B1FA2;--purple-light:#AB47BC;--purple-pale:#f3e5f5;--orange:#E65100;--orange-light:#FF9800;--orange-pale:#fff3e0;--text:#1e293b;--text-muted:#64748b;--card-bg:rgba(255,255,255,0.82);--card-border:rgba(255,255,255,0.55);--shadow-sm:0 4px 16px rgba(0,0,0,0.06);--shadow-md:0 8px 32px rgba(0,0,0,0.09);--shadow-lg:0 12px 40px rgba(0,0,0,0.13);--radius-sm:12px;--radius-md:20px;--radius-full:50px;--transition:0.3s cubic-bezier(.4,0,.2,1)}
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI','PingFang SC','Noto Serif SC',system-ui,-apple-system,sans-serif;background:linear-gradient(135deg,var(--green-pale) 0%,var(--blue-pale) 40%,var(--purple-pale) 100%) fixed;color:var(--text);min-height:100vh;line-height:1.85;font-size:1.05rem}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,200,0.22) 0%,transparent 55%),radial-gradient(circle at 70% 60%,rgba(200,230,255,0.20) 0%,transparent 55%);pointer-events:none;z-index:0}
+  .container{max-width:1100px;margin:0 auto;padding:2rem 1.5rem 4rem;position:relative;z-index:1}
+  .page-layout{display:flex;gap:2rem;align-items:flex-start}
+  .sidebar{width:220px;flex-shrink:0;position:sticky;top:6rem}
+  .main-content{flex:1;min-width:0}
+  nav.top-bar{display:flex;gap:1rem;align-items:center;margin-bottom:2.5rem;background:var(--card-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:0.7rem 2rem;border-radius:var(--radius-full);box-shadow:var(--shadow-md);position:sticky;top:1rem;z-index:10}
+  nav.top-bar a{text-decoration:none;font-weight:600;color:var(--green);padding:0.4rem 1.1rem;border-radius:var(--radius-full);transition:all var(--transition);font-size:0.95rem}
+  nav.top-bar a:hover{background:var(--green);color:#fff;box-shadow:0 2px 12px rgba(46,125,50,0.35)}
+  nav.top-bar a.back::before{content:'← '}
+  .article-header{margin-bottom:2.5rem}
+  .article-header .date{font-size:0.88rem;color:var(--text-muted);font-family:'Cascadia Code','Fira Code','Consolas',monospace;letter-spacing:0.04em;margin-bottom:0.5rem}
+  .article-header h1{font-size:2.2rem;margin-bottom:1rem;background:linear-gradient(135deg,var(--green) 0%,var(--blue) 60%,var(--purple) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;letter-spacing:0.02em;line-height:1.35}
+  .article-header .subtitle{font-size:1.05rem;color:var(--text-muted);font-style:italic}
+  .tags{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem}
+  .tag{display:inline-block;padding:0.25rem 0.85rem;border-radius:var(--radius-sm);font-size:0.78rem;font-weight:600;color:#fff;background:var(--green-light);letter-spacing:0.03em}
+  .tag.blue{background:var(--blue-light)}.tag.purple{background:var(--purple-light)}.tag.orange{background:var(--orange-light)}
+  .card{background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:var(--radius-md);padding:2rem;margin-bottom:1.8rem;box-shadow:var(--shadow-md);border:1px solid var(--card-border);position:relative;overflow:hidden}
+  .card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green-light),var(--blue-light),var(--purple-light));opacity:0;transition:opacity var(--transition)}
+  .card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}.card:hover::after{opacity:1}
+  h2{font-size:1.6rem;margin:2rem 0 1rem;color:var(--green);padding-left:1.2rem;position:relative;font-weight:700}
+  h2::before{content:'';position:absolute;left:0;top:0.15em;bottom:0.15em;width:5px;border-radius:3px;background:linear-gradient(180deg,var(--blue-light),var(--purple-light))}
+  h3{margin:1.5rem 0 0.7rem;color:var(--blue);font-size:1.2rem;font-weight:700}
+  h4{margin:1.2rem 0 0.5rem;color:var(--purple);font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:0.45rem}
+  h4::before{content:'';display:inline-block;width:8px;height:8px;background:var(--purple-light);border-radius:2px;transform:rotate(45deg);flex-shrink:0}
+  h5{margin:0.9rem 0 0.4rem;color:var(--text);font-size:0.98rem;font-weight:700}
+  p{margin-bottom:0.85rem}ul,ol{padding-left:1.5rem;margin-bottom:0.85rem}li{padding:0.2rem 0;line-height:1.75}
+  .math{font-family:'Georgia','Times New Roman','STIX Two Math',serif;font-style:italic;color:#1a1a2e;background:rgba(0,0,0,0.03);padding:0.1em 0.3em;border-radius:4px}
+  .math-block{display:block;text-align:center;margin:1.2rem 0;padding:0.8rem 1rem;background:rgba(0,0,0,0.02);border-radius:8px;font-family:'Georgia','Times New Roman','STIX Two Math',serif;font-style:italic;font-size:1.1rem;overflow-x:auto;white-space:nowrap}
+  .key-point{background:rgba(46,125,50,0.06);padding:1rem 1.3rem;border-radius:var(--radius-sm);border-left:4px solid var(--green-light);margin:1rem 0;font-size:0.95rem}
+  .key-point strong{color:var(--green)}
+  .insight-box{background:linear-gradient(135deg,rgba(255,248,200,0.5),rgba(255,243,224,0.5));padding:1rem 1.3rem;border-radius:var(--radius-sm);border-left:4px solid var(--orange-light);margin:1rem 0;font-size:0.95rem}
+  .insight-box .label{font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:0.08em;font-size:0.78rem;margin-bottom:0.4rem}
+  blockquote{border-left:4px solid var(--purple-light);margin:1rem 0;padding:0.6rem 1.2rem;background:rgba(123,31,162,0.04);border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--text-muted);font-style:italic}
+  .toc{background:var(--card-bg);backdrop-filter:blur(8px);border-radius:var(--radius-md);padding:1.2rem 1.3rem;margin-bottom:0;box-shadow:var(--shadow-sm);border:1px solid var(--card-border)}
+  .toc h3{margin-top:0;color:var(--purple);font-size:1rem}
+  .toc ol{padding-left:1.2rem}.toc li{padding:0.2rem 0;line-height:1.5;font-size:0.88rem}
+  .toc a{color:var(--blue);text-decoration:none;transition:color 0.2s}
+  .toc a:hover{color:var(--purple);text-decoration:underline}.toc a.active{color:var(--purple);font-weight:700}
+  .table-wrap{overflow-x:auto;margin:1rem 0}
+  table{width:100%;border-collapse:collapse}th,td{padding:0.55rem 0.8rem;text-align:left;border-bottom:1px solid rgba(0,0,0,0.08)}th{font-weight:700;color:var(--green);border-bottom-width:2px}
+  .err-tag{display:inline-block;padding:0.15rem 0.55rem;border-radius:6px;font-size:0.75rem;font-weight:700;color:#fff;background:#c62828;margin-right:0.3rem;vertical-align:middle}
+  .ok-tag{display:inline-block;padding:0.15rem 0.55rem;border-radius:6px;font-size:0.75rem;font-weight:700;color:#fff;background:var(--green-light);margin-right:0.3rem;vertical-align:middle}
+  .prob-box{background:rgba(25,118,210,0.04);border:1px dashed var(--blue-light);border-radius:var(--radius-sm);padding:1.2rem 1.5rem;margin:1rem 0}
+  .prob-box .prob-num{font-weight:800;color:var(--blue);font-size:1.1rem;margin-bottom:0.5rem}
+  .step-list{list-style:none;padding:0;counter-reset:step}
+  .step-list li{counter-increment:step;padding:0.4rem 0 0.4rem 2.2rem;position:relative;line-height:1.7}
+  .step-list li::before{content:counter(step);position:absolute;left:0;top:0.45rem;width:1.5rem;height:1.5rem;background:var(--green-light);color:#fff;border-radius:50%;font-size:0.78rem;font-weight:700;text-align:center;line-height:1.5rem}
+  pre{background:#1e293b;color:#e2e8f0;padding:1rem 1.3rem;border-radius:var(--radius-sm);font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.86rem;overflow-x:auto;margin:0.8rem 0;line-height:1.6;white-space:pre}
+  .ornament{display:flex;align-items:center;gap:0.6rem;margin:2rem 0 1rem;color:var(--text-muted);font-size:0.88rem;font-style:italic}
+  .ornament::before,.ornament::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(0,0,0,0.1),transparent)}
+  footer{text-align:center;padding:2rem 1rem 2.5rem;color:var(--text-muted);font-size:0.9rem;position:relative;z-index:1}
+  footer::before{content:'';display:block;width:64px;height:2px;background:linear-gradient(90deg,var(--green-light),var(--blue-light),var(--purple-light));margin:0 auto 1rem;border-radius:1px}
+  .btn{display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg,var(--green),var(--green-light));color:#fff;padding:0.6rem 1.6rem;border-radius:var(--radius-full);text-decoration:none;font-weight:600;font-size:0.95rem;transition:all var(--transition);border:none;cursor:pointer;box-shadow:0 2px 8px rgba(46,125,50,0.2)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(46,125,50,0.35)}
+  @media(max-width:860px){.page-layout{flex-direction:column}.sidebar{width:100%;position:static}.toc ol{display:flex;flex-wrap:wrap;gap:0.3rem 1rem;padding-left:0;list-style:none}.toc li{font-size:0.85rem}}
+  @media(max-width:600px){.container{padding:1rem 1rem 2rem}.article-header h1{font-size:1.6rem}h2{font-size:1.3rem}.card{padding:1.2rem}nav.top-bar{gap:0.3rem;padding:0.5rem 0.8rem}}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <nav class="top-bar">
+    <a href="../index.html#blog" class="back">返回小记</a>
+    <a href="../index.html">首页</a>
+  </nav>
+
+  <header class="article-header">
+    <p class="date">2026 · 07 · 03</p>
+    <h1>进阶积分：错题复盘与技巧内化</h1>
+    <p class="subtitle">两轮强化训练，覆盖凑微分、分部积分、三角换元、有理函数拆分——以及最关键的，从每一道错题中提取可复用的经验</p>
+    <div class="tags">
+      <span class="tag">微积分</span>
+      <span class="tag blue">积分</span>
+      <span class="tag purple">错题复盘</span>
+      <span class="tag orange">进阶</span>
+    </div>
+  </header>
+
+  <div class="page-layout">
+    <aside class="sidebar">
+      <nav class="toc" aria-label="文章目录">
+        <h3>本文地图</h3>
+        <ol>
+          <li><a href="#s1">第一轮：进阶题组（8题）</a></li>
+          <li><a href="#s2">第一轮逐题详解</a></li>
+          <li><a href="#s3">第一轮错题复盘</a></li>
+          <li><a href="#s4">第二轮：强化题组（8题）</a></li>
+          <li><a href="#s5">第二轮逐题详解</a></li>
+          <li><a href="#s6">第二轮错题复盘</a></li>
+          <li><a href="#s7">第六题：换两次元完全可行</a></li>
+          <li><a href="#s8">cot·csc 与 cos·cot 的区别</a></li>
+          <li><a href="#s9">分部积分：u 的选择策略</a></li>
+        </ol>
+      </nav>
+    </aside>
+    <div class="main-content">
+
+  <!-- ===== Section 1 ===== -->
+  <section id="s1" class="card">
+    <h2>一、第一轮：进阶题组</h2>
+    <p>核心工具不变——公式、代数变形、换元、分拆。心法：<strong>先观察结构 10 秒，判断类型，再动笔。</strong></p>
+    <ol>
+      <li>∫ x√(x²+1) dx</li>
+      <li>∫ eˣ/(1+e²ˣ) dx</li>
+      <li>∫ sin²x dx</li>
+      <li>∫ 1/(x²+4x+13) dx</li>
+      <li>∫ x ln x dx</li>
+      <li>∫ 1/[√x(1+x)] dx</li>
+      <li>∫ x²/√(1−x²) dx</li>
+      <li>∫ eˣ sin x dx</li>
+    </ol>
+  </section>
+
+  <!-- ===== Section 2 ===== -->
+  <section id="s2" class="card">
+    <h2>二、第一轮逐题详解</h2>
+
+    <h3>题1：凑微分</h3>
+    <p>令 u=x²+1，du=2xdx。∫ x√(x²+1)dx = (1/2)∫√u du = (1/3)(x²+1)<sup>3/2</sup>+C。</p>
+
+    <h3>题2：换元 + arctan</h3>
+    <p>令 u=eˣ，du=eˣdx。∫ eˣ/(1+e²ˣ)dx = ∫ 1/(1+u²)du = arctan(eˣ)+C。注意结果写成 arctan(eˣ)，加括号。</p>
+
+    <h3>题3：降幂公式</h3>
+    <p>sin²x=(1−cos2x)/2。∫ sin²x dx = x/2 − sin2x/4 + C。易错：∫ cos2x dx 需补系数 1/2。</p>
+
+    <h3>题4：配方法</h3>
+    <p>分母=(x+2)²+9，套公式 ∫ 1/(u²+a²)du = (1/a)arctan(u/a)+C，结果 (1/3)arctan((x+2)/3)+C。</p>
+
+    <h3>题5：分部积分</h3>
+    <p>u=lnx, dv=xdx。结果 x²/2·lnx − x²/4 + C。口诀：对数反三角优先选作 u。</p>
+
+    <h3>题6：换元消根</h3>
+    <p>令 u=√x，x=u², dx=2udu。∫ 2/(1+u²)du = 2arctan(√x)+C。</p>
+
+    <h3>题7：三角换元</h3>
+    <p>令 x=sinθ，化成 ∫ sin²θ dθ，与题3同。结果 (1/2)arcsin x − (x/2)√(1−x²)+C。</p>
+
+    <h3>题8：分部积分循环</h3>
+    <p>两次分部积分，产生循环方程。结果 (eˣ/2)(sin x−cos x)+C。</p>
+  </section>
+
+  <!-- ===== Section 3 ===== -->
+  <section id="s3" class="card">
+    <h2>三、第一轮错题复盘</h2>
+
+    <h3>题2：漏括号</h3>
+    <p>写成了 arctan eˣ 而不是 arctan(eˣ)。虽无歧义，但养成习惯：凡是函数的自变量是复合表达式，加括号。代入上下限时括号能防连环错。</p>
+
+    <h3>题3 与题7：发现它们是同一题</h3>
+    <p>题3 ∫ sin²x dx，题7三角换元后变成 ∫ sin²θ dθ。这是<strong>结构眼光</strong>的突破。卡住原因：对题3没用降幂，直接硬上分部积分——虽能做出来但多绕很多弯。</p>
+    <div class="key-point"><strong>教训：</strong>遇到 sin²x, cos²x，先降幂再积分，这是肌肉记忆。遇到 √(1−x²)，先三角换元，也是肌肉记忆。</div>
+
+    <h3>题4：换元后忘记"回家"</h3>
+    <p>令 x+2=3tan u，积分得 u/3+C。然后写了 arctan(tan u)/3 并错误简化成 (x+2)/3。断档处：u 和 x+2 不是一回事——应从 tan u=(x+2)/3 回代，得 u=arctan((x+2)/3)。</p>
+    <div class="key-point"><strong>心法：</strong>每次换元，在草稿上写清楚映射——原变量→新变量，新变量→原变量。算完后对着映射换回去。</div>
+
+    <h3>题5：分部积分第一步跳步</h3>
+    <p>方向对但漏了系数。分部积分三步不可跳：明确写下 u,dv → 算出 du,v → 代入 uv−∫v du。</p>
+  </section>
+
+  <!-- ===== Section 4 ===== -->
+  <section id="s4" class="card">
+    <h2>四、第二轮：强化题组</h2>
+    <p>特点：单一技巧不够用，需要组合技。</p>
+    <ol>
+      <li>∫ ln x/x² dx</li>
+      <li>∫ x arctan x dx</li>
+      <li>∫ 1/(x³+x) dx</li>
+      <li>∫ √(1−x²) dx</li>
+      <li>∫ 1/sin x dx = ∫ csc x dx</li>
+      <li>∫ 1/(√x+∛x) dx</li>
+      <li>∫₀<sup>π</sup> x sin x dx（定积分）</li>
+      <li>∫ e²ˣ/(eˣ+1) dx</li>
+    </ol>
+  </section>
+
+  <!-- ===== Section 5 ===== -->
+  <section id="s5" class="card">
+    <h2>五、第二轮逐题详解</h2>
+
+    <h3>题1：分部积分</h3>
+    <p>u=lnx, dv=x⁻²dx。v=−1/x。结果 −(ln x+1)/x + C。</p>
+
+    <h3>题2：分部积分 + 有理化</h3>
+    <p>u=arctanx, dv=xdx。剩余 ∫ x²/(1+x²)dx = ∫(1−1/(1+x²))dx = x−arctanx。结果 (x²/2)arctanx − x/2 + (1/2)arctanx + C = (x²+1)/2·arctanx − x/2 + C。</p>
+
+    <h3>题3：有理函数拆分</h3>
+    <p>分母=x(x²+1)，拆分得 1/x − x/(x²+1)。积分：ln|x| − (1/2)ln(x²+1) + C = ln|x/√(x²+1)| + C。</p>
+
+    <h3>题4：三角换元 + 降幂</h3>
+    <p>令 x=sinθ，化成 ∫ cos²θ dθ。降幂 cos²θ=(1+cos2θ)/2。结果 (1/2)arcsin x + (x/2)√(1−x²) + C。</p>
+
+    <h3>题5：经典 csc x</h3>
+    <p>乘 (csc x+cot x)/(csc x+cot x)，分子恰好是分母导数的相反数。令 u=csc x+cot x，积分=−ln|u|+C=−ln|csc x+cot x|+C。等价形式：ln|tan(x/2)|+C。</p>
+
+    <h3>题6：找最小公倍数代换</h3>
+    <p>令 x=t⁶（6=2×3），dx=6t⁵dt。∫ 6t⁵/(t³+t²)dt = 6∫ t³/(t+1)dt。多项式除法：t³=(t+1)(t²−t+1)−1。结果 2√x−3∛x+6x<sup>1/6</sup>−6ln(x<sup>1/6</sup>+1)+C。</p>
+
+    <h3>题7：定积分分部积分</h3>
+    <p>u=x, dv=sinx dx。∫₀<sup>π</sup> x sinx dx = [−x cosx]₀<sup>π</sup> + ∫₀<sup>π</sup> cosx dx = π + 0 = π。</p>
+
+    <h3>题8：指数分解</h3>
+    <p>巧法：e²ˣ=eˣ(eˣ+1)−eˣ。∫ eˣ dx − ∫ eˣ/(eˣ+1)dx = eˣ − ln(eˣ+1)+C。</p>
+  </section>
+
+  <!-- ===== Section 6 ===== -->
+  <section id="s6" class="card">
+    <h2>六、第二轮错题复盘</h2>
+
+    <h3>题2：最后一步抄错</h3>
+    <p>把 x² 抄成了 x。纯属书写问题，但说明验算环节缺失。做完后求导回代可以捕获这类低级错误。</p>
+
+    <h3>题3：困在 1/(1+x²) 和 1/x 之间</h3>
+    <p>一个积分含两种复杂元素——1/x 和 1/(1+x²)——做出来的概率很低，因为它们不是同类。你复盘时自己总结出了这一点：<strong>非同类的复杂元素组合，用拆分来处理</strong>，这正是有理函数拆分的触发条件。</p>
+
+    <h3>题4：降幂公式记反</h3>
+    <p>cos²x=(1+cos2x)/2，你记成了 (1−cos2x)/2。这是纯粹的公式记忆问题。快速验证：代 x=0，cos²0=1，(1+cos0)/2=1 正确，(1−cos0)/2=0 错误。</p>
+
+    <h3>题5：不知道"乘共轭"的技巧</h3>
+    <p>∫ csc x dx 的标准做法是乘 (csc x+cot x)/(csc x+cot x)。这个技巧不是凭空想出来的——它来自观察到 (csc x+cot x) 的导数恰好是 −csc x(csc x+cot x) 的某种形式。如果不知道这个技巧，另一条路是万能半角代换——令 t=tan(x/2)，将 sin x 和 cos x 都表为 t 的有理函数，也能做。</p>
+
+    <div class="key-point"><strong>思考路径：</strong>遇到三角有理函数积分，先试凑微分；不行就用万能半角代换 t=tan(x/2)，它能将任何 sin x, cos x 的有理式化为 t 的有理函数。</div>
+
+    <h3>题6：理想思路</h3>
+    <p>先验证两个根号能否合并或消掉→发现不能→分开研究→观察到 √x 和 ∛x 的最小公倍数是 6→令 x=t⁶。这是标准的"根式换元"触发逻辑。</p>
+
+    <h3>题7：u 的选择策略</h3>
+    <p>你把 x 当 u，sin x 当 dv——这其实是正确的选择！口诀是<strong>"对数反三角优先选作 u"</strong>，但 x 不是对数也不是反三角，所以优先权不在它身上。这里的策略是：让求导后变简单的当 u，积分后不变复杂的当 dv。</p>
+    <p>对于 ∫ x sin x dx：x 求导变 1（变简单了），sin x 积分变 −cos x（不会变得更复杂），所以选 u=x 完全正确。你之前对自己策略的怀疑其实不必要——你选对了。</p>
+  </section>
+
+  <!-- ===== Section 7 ===== -->
+  <section id="s7" class="card">
+    <h2>七、第六题：换两次元完全可行</h2>
+
+    <p>原题6：∫ x/(√(1+x²)−√(1−x²)) dx。你的思路：有理化→拆成两项→第一项令 x=tanθ→第二项令 x=sinα。</p>
+
+    <h3>完整过程</h3>
+    <p><strong>有理化后：</strong></p>
+    <p class="math-block">I = (1/2)∫ √(1+x²)/x dx + (1/2)∫ √(1−x²)/x dx = (1/2)(I₁+I₂)</p>
+
+    <h4>I₁：令 x=tanθ</h4>
+    <p>化成 ∫ sec³θ/tanθ dθ = ∫ (sinθ/cos²θ + cscθ)dθ = secθ − ln|cscθ+cotθ|+C。</p>
+    <p>回代得：√(1+x²) − ln|(√(1+x²)+1)/x| + C。</p>
+
+    <h4>I₂：令 x=sinα</h4>
+    <p>化成 ∫ cos²α/sinα dα = ∫ (cscα−sinα)dα = −ln|cscα+cotα| + cosα + C。</p>
+    <p>回代得：√(1−x²) − ln|(1+√(1−x²))/x| + C。</p>
+
+    <h3>合并</h3>
+    <p class="math-block">I = (1/2)[√(1+x²)+√(1−x²) − 对数项] + C</p>
+
+    <div class="insight-box">
+      <div class="label">总结</div>
+      <p>分拆 + 双换元完全正确，步骤长但可靠性高。考试中如果找不到巧解，这就是最稳的策略。代价是回代和合并对数时容易出错，但只要仔细，一定能做对。</p>
+    </div>
+  </section>
+
+  <!-- ===== Section 8 ===== -->
+  <section id="s8" class="card">
+    <h2>八、cot·csc 与 cos·cot：极易混淆的一对</h2>
+
+    <h3>你混淆的地方</h3>
+    <p>在 I₂ 中出现了 ∫ cos²α/sinα dα。你把它看成了 ∫ cotα·cscα dα，但：</p>
+    <ul>
+      <li><strong>cotα·cscα =</strong> (cosα/sinα)·(1/sinα) = cosα/sin²α</li>
+      <li><strong>cos²α/sinα =</strong> cosα·(cosα/sinα) = cosα·cotα</li>
+    </ul>
+    <p>分母 sin 的次数差了一次，<strong>不相等</strong>。</p>
+
+    <h3>正确的路径</h3>
+    <p>正因为分子是 cos²α，才用恒等式 cos²α=1−sin²α 拆开：</p>
+    <p class="math-block">∫ cos²α/sinα dα = ∫ (1−sin²α)/sinα dα = ∫ cscα dα − ∫ sinα dα</p>
+
+    <h3>速查：三角积分中的两对导数</h3>
+    <ul>
+      <li>(csc x)' = −csc x·cot x → ∫ cot x·csc x dx = −csc x + C</li>
+      <li>(sec x)' = sec x·tan x → ∫ sec x·tan x dx = sec x + C</li>
+    </ul>
+
+    <div class="key-point"><strong>防错心法：</strong>以后看到三角分式，先化成纯 sin, cos，再判断能否凑微分或拆开，不要直接凭"感觉"匹配公式。</div>
+  </section>
+
+  <!-- ===== Section 9 ===== -->
+  <section id="s9" class="card">
+    <h2>九、分部积分：u 的选择策略</h2>
+
+    <h3>你提出的反思</h3>
+    <blockquote>"是不是应该把变化速率慢的当成 u？比如有 ln x 就把 ln x 当作 u，有 sin x 就把 sin x 当成 u。"</blockquote>
+
+    <h3>更精确的规则</h3>
+    <p>分部积分选 u 的标准口诀——<strong>LIATE 原则</strong>（按优先级递减）：</p>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>优先级</th><th>类型</th><th>原因</th><th>例</th></tr></thead>
+      <tbody>
+        <tr><td>1（最高）</td><td><strong>L</strong>og 对数</td><td>求导后变 1/x，大幅简化</td><td>ln x</td></tr>
+        <tr><td>2</td><td><strong>I</strong>nverse trig 反三角</td><td>求导后变代数函数</td><td>arctan x, arcsin x</td></tr>
+        <tr><td>3</td><td><strong>A</strong>lgebraic 代数（幂函数）</td><td>求导降次，逐渐简化</td><td>x, x²</td></tr>
+        <tr><td>4</td><td><strong>T</strong>rig 三角</td><td>求导/积分循环，不简化</td><td>sin x, cos x</td></tr>
+        <tr><td>5（最低）</td><td><strong>E</strong>xponential 指数</td><td>积分不变复杂，求导也不简化</td><td>eˣ</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3>应用到具体题</h3>
+    <ul>
+      <li><strong>∫ x ln x dx：</strong>L 优先 → u=lnx, dv=xdx。正确。</li>
+      <li><strong>∫ x arctan x dx：</strong>I 优先 → u=arctanx, dv=xdx。正确。</li>
+      <li><strong>∫ x sin x dx：</strong>A 的优先级高于 T → u=x, dv=sinx dx。正确。</li>
+      <li><strong>∫ eˣ sin x dx：</strong>T 和 E 同级，都可以，选哪个都会进入循环。选 u=sinx 或 u=eˣ 都对。</li>
+    </ul>
+
+    <div class="insight-box">
+      <div class="label">你的直觉是对的</div>
+      <p>"变化速率慢的当 u"本质上是 LIATE 的朴素表达——对数求导变 1/x（速率骤降），反三角求导变代数（速率降），幂函数求导降次（速率慢降）。你的直觉和正式规则完全一致。</p>
+    </div>
+
+    <h3>近几次暴露出的积分薄弱点汇总</h3>
+    <ol>
+      <li><strong>降幂公式</strong>记反——用代入验证法（代 x=0）快速自查</li>
+      <li><strong>换元回代</strong>断档——强制写"回代映射"草稿</li>
+      <li><strong>分部积分跳步</strong>——强制三行：u/dv → du/v → uv−∫v du</li>
+      <li><strong>三角恒等式混淆</strong>——先化纯 sin/cos 再判断</li>
+      <li><strong>书写规范</strong>——函数复合加括号，系数不抄错</li>
+      <li><strong>验算缺失</strong>——每道不定积分做完，求导回去检查</li>
+    </ol>
+  </section>
+
+  <div class="ornament">对话来源：与 DeepSeek 的进阶积分学习讨论 · 2026 年 7 月</div>
+
+  <p style="text-align:center;margin-top:1.5rem;">
+    <a href="../index.html#blog" class="btn">← 返回小记列表</a>
+  </p>
+
+    </div><!-- .main-content -->
+  </div><!-- .page-layout -->
+</div>
+
+<footer>
+  豆花喵的小栈 · 像树木一样安静生长 · 每次新发现，都会种在这片小森林里
+</footer>
+
+<script>
+  (function(){var links=document.querySelectorAll('.toc a');var sections=[];for(var i=0;i<links.length;i++){var id=links[i].getAttribute('href').replace('#','');var el=document.getElementById(id);if(el)sections.push({link:links[i],section:el})}
+  function onScroll(){var scrollY=window.scrollY+120;var current=null;for(var i=0;i<sections.length;i++){if(sections[i].section.offsetTop<=scrollY)current=sections[i].link}
+  for(var j=0;j<links.length;j++)links[j].classList.remove('active');if(current)current.classList.add('active')}
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll()})();
+</script>
+</body>
+</html>
