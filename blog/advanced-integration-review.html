@@ -41,11 +41,16 @@
   .insight-box{background:linear-gradient(135deg,rgba(255,248,200,0.5),rgba(255,243,224,0.5));padding:1rem 1.3rem;border-radius:var(--radius-sm);border-left:4px solid var(--orange-light);margin:1rem 0;font-size:0.95rem}
   .insight-box .label{font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:0.08em;font-size:0.78rem;margin-bottom:0.4rem}
   blockquote{border-left:4px solid var(--purple-light);margin:1rem 0;padding:0.6rem 1.2rem;background:rgba(123,31,162,0.04);border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--text-muted);font-style:italic}
-  .toc{background:var(--card-bg);backdrop-filter:blur(8px);border-radius:var(--radius-md);padding:1.2rem 1.3rem;margin-bottom:0;box-shadow:var(--shadow-sm);border:1px solid var(--card-border)}
-  .toc h3{margin-top:0;color:var(--purple);font-size:1rem}
-  .toc ol{padding-left:1.2rem}.toc li{padding:0.2rem 0;line-height:1.5;font-size:0.88rem}
-  .toc a{color:var(--blue);text-decoration:none;transition:color 0.2s}
-  .toc a:hover{color:var(--purple);text-decoration:underline}.toc a.active{color:var(--purple);font-weight:700}
+  .toc{background:var(--card-bg);backdrop-filter:blur(8px);border-radius:var(--radius-md);padding:1.3rem 1.2rem 1.1rem;margin-bottom:0;box-shadow:var(--shadow-sm);border:1px solid var(--card-border)}
+  .toc h3{margin-top:0;color:var(--green);font-size:0.92rem;font-weight:700;letter-spacing:0.04em;padding-bottom:0.6rem;margin-bottom:0.7rem;border-bottom:1px solid rgba(46,125,50,0.1)}
+  .toc h3::after{content:'';display:block;width:22px;height:1.5px;background:var(--green-light);margin-top:0.45rem;border-radius:1px}
+  .toc ol{padding-left:0.6rem;list-style:none;border-left:1px solid rgba(46,125,50,0.12)}
+  .toc li{padding:0.3rem 0 0.3rem 0.1rem;line-height:1.4;font-size:0.86rem;position:relative;display:flex;align-items:flex-start;gap:0.5rem}
+  .toc li::before{content:'';display:block;width:7px;height:9px;background:var(--green-light);border-radius:80% 0 80% 0;transform:rotate(-40deg);flex-shrink:0;opacity:0.45;transition:all var(--transition);margin-top:0.25rem}
+  .toc li:hover::before{opacity:0.85;transform:rotate(-40deg) scale(1.2);background:var(--green)}
+  .toc li:has(a.active)::before{opacity:1;background:var(--green);box-shadow:0 0 5px rgba(46,125,50,0.25)}
+  .toc a{color:var(--text);text-decoration:none;transition:color 0.2s}
+  .toc a:hover{color:var(--green)}.toc a.active{color:var(--green);font-weight:700}
   .table-wrap{overflow-x:auto;margin:1rem 0}
   table{width:100%;border-collapse:collapse}th,td{padding:0.55rem 0.8rem;text-align:left;border-bottom:1px solid rgba(0,0,0,0.08)}th{font-weight:700;color:var(--green);border-bottom-width:2px}
   .err-tag{display:inline-block;padding:0.15rem 0.55rem;border-radius:6px;font-size:0.75rem;font-weight:700;color:#fff;background:#c62828;margin-right:0.3rem;vertical-align:middle}
@@ -62,7 +67,7 @@
   footer::before{content:'';display:block;width:64px;height:2px;background:linear-gradient(90deg,var(--green-light),var(--blue-light),var(--purple-light));margin:0 auto 1rem;border-radius:1px}
   .btn{display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg,var(--green),var(--green-light));color:#fff;padding:0.6rem 1.6rem;border-radius:var(--radius-full);text-decoration:none;font-weight:600;font-size:0.95rem;transition:all var(--transition);border:none;cursor:pointer;box-shadow:0 2px 8px rgba(46,125,50,0.2)}
   .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(46,125,50,0.35)}
-  @media(max-width:860px){.page-layout{flex-direction:column}.sidebar{width:100%;position:static}.toc ol{display:flex;flex-wrap:wrap;gap:0.3rem 1rem;padding-left:0;list-style:none}.toc li{font-size:0.85rem}}
+  @media(max-width:860px){.page-layout{flex-direction:column}.sidebar{width:100%;position:static}.toc ol{display:flex;flex-wrap:wrap;gap:0.3rem 1rem;padding-left:0;list-style:none;border-left:none}.toc li{font-size:0.85rem}.toc li::before{display:none}}
   @media(max-width:600px){.container{padding:1rem 1rem 2rem}.article-header h1{font-size:1.6rem}h2{font-size:1.3rem}.card{padding:1.2rem}nav.top-bar{gap:0.3rem;padding:0.5rem 0.8rem}}
 </style>
 </head>
