@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>微积分综合复习题集 — 豆花喵的小栈</title>
+<style>
+  :root{--green:#2E7D32;--green-light:#4CAF50;--green-pale:#e8f5e9;--blue:#1976D2;--blue-light:#42A5F5;--blue-pale:#e3f2fd;--purple:#7B1FA2;--purple-light:#AB47BC;--purple-pale:#f3e5f5;--orange:#E65100;--orange-light:#FF9800;--text:#1e293b;--text-muted:#64748b;--card-bg:rgba(255,255,255,0.82);--card-border:rgba(255,255,255,0.55);--shadow-sm:0 4px 16px rgba(0,0,0,0.06);--shadow-md:0 8px 32px rgba(0,0,0,0.09);--shadow-lg:0 12px 40px rgba(0,0,0,0.13);--radius-sm:12px;--radius-md:20px;--radius-full:50px;--transition:0.3s cubic-bezier(.4,0,.2,1)}
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI','PingFang SC','Noto Serif SC',system-ui,-apple-system,sans-serif;background:linear-gradient(135deg,var(--green-pale) 0%,var(--blue-pale) 40%,var(--purple-pale) 100%) fixed;color:var(--text);min-height:100vh;line-height:1.85;font-size:1.05rem}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,200,0.22) 0%,transparent 55%),radial-gradient(circle at 70% 60%,rgba(200,230,255,0.20) 0%,transparent 55%);pointer-events:none;z-index:0}
+  .container{max-width:1100px;margin:0 auto;padding:2rem 1.5rem 4rem;position:relative;z-index:1}
+  .page-layout{display:flex;gap:2rem;align-items:flex-start}
+  .sidebar{width:220px;flex-shrink:0;position:sticky;top:6rem}
+  .main-content{flex:1;min-width:0}
+  nav.top-bar{display:flex;gap:1rem;align-items:center;margin-bottom:2.5rem;background:var(--card-bg);backdrop-filter:blur(12px);padding:0.7rem 2rem;border-radius:var(--radius-full);box-shadow:var(--shadow-md);position:sticky;top:1rem;z-index:10}
+  nav.top-bar a{text-decoration:none;font-weight:600;color:var(--green);padding:0.4rem 1.1rem;border-radius:var(--radius-full);transition:all var(--transition);font-size:0.95rem}
+  nav.top-bar a:hover{background:var(--green);color:#fff;box-shadow:0 2px 12px rgba(46,125,50,0.35)}
+  nav.top-bar a.back::before{content:'← '}
+  .article-header{margin-bottom:2.5rem}
+  .article-header .date{font-size:0.88rem;color:var(--text-muted);font-family:'Cascadia Code','Fira Code','Consolas',monospace;letter-spacing:0.04em;margin-bottom:0.5rem}
+  .article-header h1{font-size:1.9rem;margin-bottom:1rem;background:linear-gradient(135deg,var(--green) 0%,var(--blue) 60%,var(--purple) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;letter-spacing:0.02em;line-height:1.35}
+  .tags{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem}
+  .tag{display:inline-block;padding:0.25rem 0.85rem;border-radius:var(--radius-sm);font-size:0.78rem;font-weight:600;color:#fff;background:var(--green-light)}
+  .tag.blue{background:var(--blue-light)}.tag.purple{background:var(--purple-light)}.tag.orange{background:var(--orange-light)}
+  .card{background:var(--card-bg);backdrop-filter:blur(8px);border-radius:var(--radius-md);padding:2rem;margin-bottom:1.8rem;box-shadow:var(--shadow-md);border:1px solid var(--card-border);position:relative;overflow:hidden}
+  .card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green-light),var(--blue-light),var(--purple-light));opacity:0;transition:opacity var(--transition)}
+  .card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}.card:hover::after{opacity:1}
+  h2{font-size:1.6rem;margin:2rem 0 1rem;color:var(--green);padding-left:1.2rem;position:relative;font-weight:700}
+  h2::before{content:'';position:absolute;left:0;top:0.15em;bottom:0.15em;width:5px;border-radius:3px;background:linear-gradient(180deg,var(--blue-light),var(--purple-light))}
+  h3{margin:1.5rem 0 0.7rem;color:var(--blue);font-size:1.2rem;font-weight:700}
+  h4{margin:1.2rem 0 0.5rem;color:var(--purple);font-size:1.05rem;font-weight:700}
+  p{margin-bottom:0.85rem}ul,ol{padding-left:1.5rem;margin-bottom:0.85rem}li{padding:0.2rem 0;line-height:1.75}
+  .math{font-family:'Georgia','Times New Roman','STIX Two Math',serif;font-style:italic;color:#1a1a2e;background:rgba(0,0,0,0.03);padding:0.1em 0.3em;border-radius:4px}
+  .math-block{display:block;text-align:center;margin:1.2rem 0;padding:0.8rem 1rem;background:rgba(0,0,0,0.02);border-radius:8px;font-family:'Georgia','Times New Roman','STIX Two Math',serif;font-size:1.1rem;overflow-x:auto}
+  .key-point{background:rgba(46,125,50,0.06);padding:1rem 1.3rem;border-radius:var(--radius-sm);border-left:4px solid var(--green-light);margin:1rem 0;font-size:0.95rem}
+  .key-point strong{color:var(--green)}
+  .insight-box{background:linear-gradient(135deg,rgba(255,248,200,0.5),rgba(255,243,224,0.5));padding:1rem 1.3rem;border-radius:var(--radius-sm);border-left:4px solid var(--orange-light);margin:1rem 0;font-size:0.95rem}
+  .toc{background:var(--card-bg);backdrop-filter:blur(8px);border-radius:var(--radius-md);padding:1.3rem 1.2rem 1.1rem;margin-bottom:0;box-shadow:var(--shadow-sm);border:1px solid var(--card-border)}
+  .toc h3{margin-top:0;color:var(--green);font-size:0.92rem;font-weight:700;letter-spacing:0.04em;padding-bottom:0.6rem;margin-bottom:0.7rem;border-bottom:1px solid rgba(46,125,50,0.1)}
+  .toc h3::after{content:'';display:block;width:22px;height:1.5px;background:var(--green-light);margin-top:0.45rem;border-radius:1px}
+  .toc ol{padding-left:0.6rem;list-style:none;border-left:1px solid rgba(46,125,50,0.12)}
+  .toc li{padding:0.3rem 0 0.3rem 0.1rem;line-height:1.4;font-size:0.86rem;position:relative;display:flex;align-items:flex-start;gap:0.5rem}
+  .toc li::before{content:'';display:block;width:7px;height:9px;background:var(--green-light);border-radius:80% 0 80% 0;transform:rotate(-40deg);flex-shrink:0;opacity:0.45;transition:all var(--transition);margin-top:0.25rem}
+  .toc li:hover::before{opacity:0.85;transform:rotate(-40deg) scale(1.2);background:var(--green)}
+  .toc li:has(a.active)::before{opacity:1;background:var(--green);box-shadow:0 0 5px rgba(46,125,50,0.25)}
+  .toc a{color:var(--text);text-decoration:none;transition:color 0.2s}.toc a:hover{color:var(--green)}.toc a.active{color:var(--green);font-weight:700}
+  .prob-num{display:inline-block;width:1.8rem;height:1.8rem;background:var(--blue);color:#fff;border-radius:50%;text-align:center;line-height:1.8rem;font-weight:700;font-size:0.85rem;margin-right:0.5rem;flex-shrink:0}
+  .table-wrap{overflow-x:auto;margin:1rem 0}table{width:100%;border-collapse:collapse}th,td{padding:0.55rem 0.8rem;text-align:left;border-bottom:1px solid rgba(0,0,0,0.08)}th{font-weight:700;color:var(--green)}
+  .ornament{display:flex;align-items:center;gap:0.6rem;margin:2rem 0 1rem;color:var(--text-muted);font-size:0.88rem;font-style:italic}
+  .ornament::before,.ornament::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(0,0,0,0.1),transparent)}
+  footer{text-align:center;padding:2rem 1rem 2.5rem;color:var(--text-muted);font-size:0.9rem;position:relative;z-index:1}
+  footer::before{content:'';display:block;width:64px;height:2px;background:linear-gradient(90deg,var(--green-light),var(--blue-light),var(--purple-light));margin:0 auto 1rem;border-radius:1px}
+  .btn{display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg,var(--green),var(--green-light));color:#fff;padding:0.6rem 1.6rem;border-radius:var(--radius-full);text-decoration:none;font-weight:600;font-size:0.95rem;transition:all var(--transition);box-shadow:0 2px 8px rgba(46,125,50,0.2)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(46,125,50,0.35)}
+  @media(max-width:860px){.page-layout{flex-direction:column}.sidebar{width:100%;position:static}.toc ol{display:flex;flex-wrap:wrap;gap:0.3rem 1rem;padding-left:0;list-style:none;border-left:none}.toc li{font-size:0.85rem}.toc li::before{display:none}}
+  @media(max-width:600px){.container{padding:1rem 1rem 2rem}.article-header h1{font-size:1.4rem}h2{font-size:1.3rem}.card{padding:1.2rem}nav.top-bar{gap:0.3rem;padding:0.5rem 0.8rem}}
+</style>
+</head>
+<body>
+<div class="container">
+  <nav class="top-bar"><a href="../index.html#blog" class="back">返回小记</a><a href="../index.html">首页</a></nav>
+  <header class="article-header">
+    <p class="date">2026 · 07 · 04</p>
+    <h1>微积分综合复习题集</h1>
+    <p class="subtitle" style="color:var(--text-muted);font-style:italic;">覆盖五大模块：定积分应用、多元微分、二重积分、级数、微分方程</p>
+    <div class="tags"><span class="tag">定积分</span><span class="tag blue">多元函数</span><span class="tag purple">二重积分</span><span class="tag orange">级数</span><span class="tag">微分方程</span></div>
+  </header>
+
+  <div class="page-layout">
+  <aside class="sidebar"><nav class="toc" aria-label="目录"><h3>本文地图</h3><ol>
+    <li><a href="#s1">定积分与几何应用</a></li>
+    <li><a href="#s2">多元函数微分</a></li>
+    <li><a href="#s3">二重积分</a></li>
+    <li><a href="#s4">级数</a></li>
+    <li><a href="#s5">微分方程</a></li>
+  </ol></nav></aside>
+  <div class="main-content">
+
+<!---------- 模块一：定积分 ---------->
+<section id="s1" class="card">
+<h2>模块一：定积分与几何应用</h2>
+
+<h3>题1-1：积分上限函数求导</h3>
+<p>设 \(F(x)=\int_0^x t f(x^2-t^2)dt\)，\(f\) 连续。求 \(F'(x)\)。</p>
+<p><strong>解：</strong>先换元，令 \(u=x^2-t^2\)，\(du=-2t\,dt\)。</p>
+<p class="math-block">F(x)=\frac{1}{2}\int_0^{x^2} f(u)du,\quad F'(x)=x f(x^2)</p>
+
+<h3>题1-2：含积分上限的极限</h3>
+<p>求 \(\lim_{x\to 0}\frac{\int_0^x \sin(t^2)dt}{x^3}\)。</p>
+<p><strong>解：</strong>0/0型，洛必达。\(\frac{d}{dx}\int_0^x\sin(t^2)dt=\sin(x^2)\)。</p>
+<p class="math-block">\lim_{x\to 0}\frac{\sin(x^2)}{3x^2}=\frac{1}{3}</p>
+
+<h3>题1-3：对称区间 + 消x公式</h3>
+<p>计算 \(I=\int_0^\pi \frac{x\sin x}{1+\cos^2 x}dx\)。</p>
+<p><strong>解：</strong>令 \(x=\pi-t\)，利用 \(\sin(\pi-t)=\sin t,\;\cos^2(\pi-t)=\cos^2 t\)。</p>
+<p class="math-block">I=\frac{\pi}{2}\int_0^\pi\frac{\sin x}{1+\cos^2 x}dx=\frac{\pi}{2}\cdot\frac{\pi}{2}=\frac{\pi^2}{4}</p>
+
+<h3>题1-4：换元法</h3>
+<p>计算 \(\int_0^{\ln 2} \sqrt{e^x-1}\,dx\)。</p>
+<p><strong>解：</strong>令 \(u=\sqrt{e^x-1}\)，则 \(e^x=u^2+1\)，\(dx=\frac{2u}{u^2+1}du\)。x=0时u=0，x=ln2时u=1。</p>
+<p class="math-block">\int_0^1 u\cdot\frac{2u}{u^2+1}du=2\int_0^1(1-\frac{1}{u^2+1})du=2-\frac{\pi}{2}</p>
+
+<h3>题1-5：分部积分</h3>
+<p>计算 \(\int_0^1 x\arctan x\,dx\)。</p>
+<p><strong>解：</strong>\(u=\arctan x,dv=xdx\)。\(du=\frac{dx}{1+x^2},v=\frac{x^2}{2}\)。</p>
+<p class="math-block">\left.\frac{x^2}{2}\arctan x\right|_0^1-\frac{1}{2}\int_0^1\frac{x^2}{1+x^2}dx=\frac{\pi}{8}-\frac{1}{2}+\frac{\pi}{8}=\frac{\pi}{4}-\frac{1}{2}</p>
+
+<h3>题1-6：面积</h3>
+<p>求 \(y=x^3\) 与 \(y=\sqrt{x}\) 在第一象限围成图形的面积。</p>
+<p><strong>解：</strong>交点：(0,0)和(1,1)。在[0,1]上\(\sqrt{x}\ge x^3\)。\(A=\int_0^1(\sqrt{x}-x^3)dx=[\frac{2}{3}x^{3/2}-\frac{x^4}{4}]_0^1=\frac{5}{12}\)。</p>
+
+<h3>题1-7：绕x轴旋转体体积</h3>
+<p>求 \(y=\sin x\;(0\le x\le\pi)\) 绕x轴旋转所得体积。</p>
+<p><strong>解：</strong>\(V=\pi\int_0^\pi\sin^2 x\,dx=\pi\cdot\frac{\pi}{2}=\frac{\pi^2}{2}\)。</p>
+
+<h3>题1-8：绕y轴 + 壳层法</h3>
+<p>求 \(y=x^2\) 与 \(y=x\) 围成区域绕y轴旋转所得体积。</p>
+<p><strong>解：</strong>\(V=2\pi\int_0^1 x(x-x^2)dx=2\pi(\frac{1}{3}-\frac{1}{4})=\frac{\pi}{6}\)。</p>
+</section>
+
+<!---------- 模块二：多元函数微分 ---------->
+<section id="s2" class="card">
+<h2>模块二：多元函数微分</h2>
+
+<h3>题2-1：二元极限</h3>
+<p>求 \(\lim_{(x,y)\to(0,0)}\frac{xy}{x^2+y^2}\)。</p>
+<p><strong>解：</strong>沿y=x：\(\frac{x^2}{2x^2}\to\frac{1}{2}\)；沿y=0：0。极限不存在。</p>
+
+<h3>题2-2：偏导数</h3>
+<p>设 \(z=x^y\;(x>0)\)。求 \(\frac{\partial z}{\partial x},\frac{\partial z}{\partial y}\)。</p>
+<p><strong>解：</strong>\(\frac{\partial z}{\partial x}=yx^{y-1}\)；\(\frac{\partial z}{\partial y}=x^y\ln x\)。</p>
+
+<h3>题2-3：全微分</h3>
+<p>求 \(z=\ln(x^2+y^2)\) 在点(1,1)处的全微分。</p>
+<p><strong>解：</strong>\(z_x=\frac{2x}{x^2+y^2},z_y=\frac{2y}{x^2+y^2}\)。在(1,1)：\(z_x=1,z_y=1\)。\(dz=dx+dy\)。</p>
+
+<h3>题2-4：极值</h3>
+<p>求 \(f(x,y)=x^3+y^3-3xy\) 的极值。</p>
+<p><strong>解：</strong>\(f_x=3x^2-3y=0,f_y=3y^2-3x=0\)。得(0,0)和(1,1)。</p>
+<p>\(f_{xx}=6x,f_{yy}=6y,f_{xy}=-3\)。AC-B²检验：(0,0)处AC-B²=-9&lt;0，无极值；(1,1)处AC-B²=36-9=27&gt;0且A=6&gt;0，极小值f(1,1)=-1。</p>
+
+<h3>题2-5：拉格朗日乘数法</h3>
+<p>求 \(f(x,y)=xy\) 在约束 \(x+y=1\) 下的极值。</p>
+<p><strong>解：</strong>\(L=xy+\lambda(1-x-y)\)。\(L_x=y-\lambda=0,L_y=x-\lambda=0\)。得x=y=1/2，\(\lambda=1/2\)。极值f=1/4（最大值）。</p>
+
+<h3>题2-6：可微性判别</h3>
+<p>判断 \(f(x,y)=\begin{cases}\frac{xy}{x^2+y^2},&(x,y)\neq(0,0)\\0,&(0,0)\end{cases}\) 在原点是否可微。</p>
+<p><strong>解：</strong>不连续（题2-1已证极限不存在），故不可微。连续是可微的必要条件。</p>
+</section>
+
+<!---------- 模块三：二重积分 ---------->
+<section id="s3" class="card">
+<h2>模块三：二重积分</h2>
+
+<h3>题3-1：直角坐标X型</h3>
+<p>计算 \(\iint_D (x+y)d\sigma\)，D由y=x²和y=x围成。</p>
+<p><strong>解：</strong>\(\int_0^1\int_{x^2}^x(x+y)dy\,dx=\frac{3}{20}\)。</p>
+
+<h3>题3-2：交换次序</h3>
+<p>计算 \(\iint_D \frac{\sin y}{y}d\sigma\)，D由y=x,y=π,x=0围成。</p>
+<p><strong>解：</strong>必须换序。\(\int_0^\pi\int_0^y\frac{\sin y}{y}dx\,dy=\int_0^\pi\sin y\,dy=2\)。</p>
+
+<h3>题3-3：交换次序（识别型）</h3>
+<p>将 \(\int_0^1\int_{y^2}^y f(x,y)dx\,dy\) 改为先y后x次序。</p>
+<p><strong>解：</strong>区域：\(0\le y\le1,y^2\le x\le y\)。换序后：\(0\le x\le1,x\le y\le\sqrt{x}\)。</p>
+
+<h3>题3-4：极坐标</h3>
+<p>计算 \(\iint_D \sqrt{x^2+y^2}\,d\sigma\)，D为圆环 \(1\le x^2+y^2\le4\)。</p>
+<p><strong>解：</strong>\(\int_0^{2\pi}\int_1^2 r\cdot r\,dr d\theta=2\pi\cdot\frac{7}{3}=\frac{14\pi}{3}\)。</p>
+
+<h3>题3-5：性质</h3>
+<p>比较大小：\(I_1=\iint_D (x+y)^2 d\sigma\) 与 \(I_2=\iint_D (x+y)^3 d\sigma\)，D是圆盘 \(x^2+y^2\le1\)。</p>
+<p><strong>解：</strong>在D内|x+y|≤√2&lt;2，对大部分点\(|x+y|\le1\)，故(x+y)²≥(x+y)³。利用对称性，\(I_1\ge I_2\)。</p>
+</section>
+
+<!---------- 模块四：级数 ---------->
+<section id="s4" class="card">
+<h2>模块四：级数</h2>
+
+<h3>题4-1：必要条件</h3>
+<p>判断 \(\sum_{n=1}^\infty \frac{n}{n+1}\) 的敛散性。</p>
+<p><strong>解：</strong>\(\lim_{n\to\infty}\frac{n}{n+1}=1\neq0\)，不满足收敛必要条件，发散。</p>
+
+<h3>题4-2：比较审敛法</h3>
+<p>判断 \(\sum_{n=1}^\infty \frac{1}{n^2+1}\) 的敛散性。</p>
+<p><strong>解：</strong>\(\frac{1}{n^2+1}<\frac{1}{n^2}\)，\(\sum\frac{1}{n^2}\)收敛（p=2&gt;1），由比较审敛法知原级数收敛。</p>
+
+<h3>题4-3：比值审敛法</h3>
+<p>判断 \(\sum_{n=1}^\infty \frac{2^n}{n!}\) 的敛散性。</p>
+<p><strong>解：</strong>\(\lim_{n\to\infty}\left|\frac{a_{n+1}}{a_n}\right|=\lim_{n\to\infty}\frac{2}{n+1}=0<1\)，收敛。</p>
+
+<h3>题4-4：交错级数</h3>
+<p>判断 \(\sum_{n=1}^\infty (-1)^{n-1}\frac{1}{n}\) 的敛散性及条件/绝对收敛。</p>
+<p><strong>解：</strong>\(\frac{1}{n}\)递减趋于0，莱布尼茨判别法→收敛。但绝对值级数\(\sum\frac{1}{n}\)发散，故<strong>条件收敛</strong>。</p>
+
+<h3>题4-5：绝对收敛</h3>
+<p>判断 \(\sum_{n=1}^\infty (-1)^{n-1}\frac{1}{n^2}\) 的敛散性。</p>
+<p><strong>解：</strong>绝对值级数\(\sum\frac{1}{n^2}\)收敛，故原级数<strong>绝对收敛</strong>。</p>
+
+<h3>题4-6：幂级数收敛域</h3>
+<p>求 \(\sum_{n=1}^\infty \frac{x^n}{n}\) 的收敛域。</p>
+<p><strong>解：</strong>收敛半径 \(R=\lim|\frac{a_n}{a_{n+1}}|=\lim\frac{n+1}{n}=1\)。x=1：调和级数发散；x=-1：交错调和级数收敛。收敛域：\([-1,1)\)。</p>
+
+<h3>题4-7：幂级数收敛域</h3>
+<p>求 \(\sum_{n=0}^\infty \frac{x^n}{n!}\) 的收敛域。</p>
+<p><strong>解：</strong>比值法：\(\lim|\frac{x^{n+1}/(n+1)!}{x^n/n!}|=\lim\frac{|x|}{n+1}=0\)。收敛域：\((-\infty,+\infty)\)。</p>
+
+<h3>题4-8：展开为幂级数</h3>
+<p>将 \(f(x)=\ln(1+x)\) 展开为x的幂级数，并求收敛域。</p>
+<p><strong>解：</strong>\(\ln(1+x)=\sum_{n=1}^\infty (-1)^{n-1}\frac{x^n}{n},\quad x\in(-1,1]\)。</p>
+</section>
+
+<!---------- 模块五：微分方程 ---------->
+<section id="s5" class="card">
+<h2>模块五：微分方程</h2>
+
+<h3>题5-1：可分离变量</h3>
+<p>求解初值问题：\(\frac{dy}{dx}=2xy,\;y(0)=1\)。</p>
+<p><strong>解：</strong>分离：\(\frac{dy}{y}=2x dx\)。积分：\(\ln|y|=x^2+C\)。\(y=Ce^{x^2}\)。代入y(0)=1得C=1。\(y=e^{x^2}\)。</p>
+
+<h3>题5-2：可分离变量</h3>
+<p>求解：\((1+y^2)dx+(1+x^2)dy=0\)。</p>
+<p><strong>解：</strong>\(\frac{dx}{1+x^2}+\frac{dy}{1+y^2}=0\)。积分：\(\arctan x+\arctan y=C\)。</p>
+
+<h3>题5-3：一阶线性（齐次→非齐次）</h3>
+<p>求解：\(y'+2xy=x\)。</p>
+<p><strong>解：</strong>先求齐次通解：\(y'+2xy=0\)→\(y=Ce^{-x^2}\)。常数变易：设\(y=C(x)e^{-x^2}\)，代入得\(C'(x)=xe^{x^2}\)，\(C(x)=\frac{1}{2}e^{x^2}+C_1\)。通解：\(y=\frac{1}{2}+C_1e^{-x^2}\)。</p>
+
+<h3>题5-4：一阶线性（公式法）</h3>
+<p>求解：\(y'+\frac{1}{x}y=x\;(x>0)\)。</p>
+<p><strong>解：</strong>积分因子\(\mu=e^{\int\frac{1}{x}dx}=x\)。乘\(\mu\)：\((xy)'=x^2\)。积分：\(xy=\frac{x^3}{3}+C\)。\(y=\frac{x^2}{3}+\frac{C}{x}\)。</p>
+
+<h3>题5-5：一阶线性初值</h3>
+<p>求解：\(y'+y\cos x=\sin x\cos x,\;y(0)=1\)。</p>
+<p><strong>解：</strong>积分因子\(\mu=e^{\sin x}\)。乘后：\((ye^{\sin x})'=\sin x\cos x\cdot e^{\sin x}\)。右边可凑微分。\(ye^{\sin x}=e^{\sin x}(\sin x-1)+C\)。\(y=\sin x-1+Ce^{-\sin x}\)。代入y(0)=1得C=2。\(y=\sin x-1+2e^{-\sin x}\)。</p>
+
+<h3>题5-6：二阶常系数齐次</h3>
+<p>求解：\(y''-3y'+2y=0\)。</p>
+<p><strong>解：</strong>特征方程：\(r^2-3r+2=0\)，(r-1)(r-2)=0，r=1,2。通解：\(y=C_1e^x+C_2e^{2x}\)。</p>
+
+<h3>题5-7：二阶常系数齐次（重根）</h3>
+<p>求解：\(y''+2y'+y=0\)。</p>
+<p><strong>解：</strong>\(r^2+2r+1=0\)，(r+1)²=0，r=-1（二重根）。通解：\(y=(C_1+C_2x)e^{-x}\)。</p>
+
+<h3>题5-8：二阶常系数齐次（共轭复根）</h3>
+<p>求解：\(y''+4y'+13y=0\)。</p>
+<p><strong>解：</strong>\(r^2+4r+13=0\)，r=-2±3i。通解：\(y=e^{-2x}(C_1\cos 3x+C_2\sin 3x)\)。</p>
+</section>
+
+<!---------- 综合检测 ---------->
+<section class="card">
+<h2>综合检测：8题限时练习</h2>
+<p>以下8题覆盖五大模块，建议耗时60分钟。</p>
+
+<p><strong>1.</strong> 计算 \(\int_0^1 x e^x dx\)。<br><small>（分部积分）</small></p>
+<p><strong>2.</strong> 求 \(\lim_{(x,y)\to(0,0)}\frac{x^2y}{x^4+y^2}\)。<br><small>（沿y=x²：极限=1/2；沿y=0：0。不存在。）</small></p>
+<p><strong>3.</strong> 求 \(f(x,y)=x^2+xy+y^2-3x-3y\) 的极小值。<br><small>（驻点(1,1)，极小值-3。）</small></p>
+<p><strong>4.</strong> 交换次序并计算：\(\int_0^1\int_x^1 e^{y^2}dy\,dx\)。<br><small>（换序后=\(\int_0^1 ye^{y^2}dy=\frac{e-1}{2}\)。）</small></p>
+<p><strong>5.</strong> 判断 \(\sum_{n=1}^\infty \frac{3^n}{n\cdot 2^n}\) 的敛散性。<br><small>（比值法：lim=3/2&gt;1，发散。）</small></p>
+<p><strong>6.</strong> 求 \(\sum_{n=1}^\infty \frac{(x-1)^n}{2^n}\) 的收敛域。<br><small>（R=2，|x-1|&lt;2。x=-1：发散；x=3：发散。(-1,3)。）</small></p>
+<p><strong>7.</strong> 求解初值：\(y'+y=e^x,\;y(0)=0\)。<br><small>（积分因子e^x，通解y=e^{-x}(\frac{1}{2}e^{2x}+C)。y(0)=0→C=-1/2。\(y=\frac{1}{2}(e^x-e^{-x})\)。）</small></p>
+<p><strong>8.</strong> 求解：\(y''-4y'+4y=0,\;y(0)=1,y'(0)=0\)。<br><small>（r=2重根。\(y=e^{2x}(C_1+C_2x)\)。代入得\(C_1=1,C_2=-2\)。\(y=e^{2x}(1-2x)\)。）</small></p>
+</section>
+
+  <div class="ornament">覆盖五大模块共40+道练习题 · 2026年7月</div>
+  <p style="text-align:center;margin-top:1.5rem;"><a href="../index.html#blog" class="btn">← 返回小记列表</a></p>
+  </div></div>
+</div>
+<footer>豆花喵的小栈 · 像树木一样安静生长 · 每次新发现，都会种在这片小森林里</footer>
+<script>(function(){var links=document.querySelectorAll('.toc a');var sections=[];for(var i=0;i<links.length;i++){var id=links[i].getAttribute('href').replace('#','');var el=document.getElementById(id);if(el)sections.push({link:links[i],section:el})}function onScroll(){var scrollY=window.scrollY+120;var current=null;for(var i=0;i<sections.length;i++){if(sections[i].section.offsetTop<=scrollY)current=sections[i].link}for(var j=0;j<links.length;j++)links[j].classList.remove('active');if(current)current.classList.add('active')}window.addEventListener('scroll',onScroll,{passive:true});onScroll()})();</script>
+</body>
+</html>
