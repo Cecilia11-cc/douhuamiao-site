@@ -8,17 +8,17 @@
 
 ---
 
-## 站点结构
+##  站点结构
 
 | 版块 | 说明 |
 |------|------|
-| 首页 | 站点导航 |
-| [小记](https://cecilia11-cc.github.io/douhuamiao-site/#blog) | 数学分析、微积分学习笔记（9 篇博客） |
-| [手作](https://cecilia11-cc.github.io/douhuamiao-site/#projects) | 拼豆、游戏等手作项目 |
-| [枝叶](https://cecilia11-cc.github.io/douhuamiao-site/garden.html) | 推荐书单与兴趣爱好，手绘水彩树风格 |
-| 关于我 | 个人介绍 |
+|  首页 | 站点导航 |
+|  [小记](https://cecilia11-cc.github.io/douhuamiao-site/#blog) | 数学分析、微积分学习笔记（9 篇博客） |
+|  [手作](https://cecilia11-cc.github.io/douhuamiao-site/#projects) | 拼豆、游戏等手作项目 |
+|  [枝叶](https://cecilia11-cc.github.io/douhuamiao-site/garden.html) | 推荐书单与兴趣爱好，手绘水彩树风格 |
+|  关于我 | 个人介绍 |
 
-## 数学笔记
+##  数学笔记
 
 | 文章 | 内容 |
 |------|------|
@@ -32,14 +32,14 @@
 | 进阶积分：错题复盘与技巧内化 | 三角换元、有理化、非初等积分的应对策略 |
 | 二重积分进阶与空间几何 | 含参积分、雅可比行列式、曲面交线 |
 
-## 手作项目
+##  手作项目
 
 | 项目 | 技术 | 说明 |
 |------|------|------|
-| [拼豆图纸生成器](https://github.com/Cecilia11-cc/perler-bead-generator) | Python | 图片转拼豆图纸，内置 Mard 221 色卡 |
-| [PDF → LaTeX](https://github.com/Cecilia11-cc/pdf2latex-via-deepseek) | Python + DeepSeek API | 中文论文 PDF 转 LaTeX 草稿 |
-| [科学小游戏](https://g8cdzx23d8.coze.site) | Coze 平台 | 面向小学生的科学思维闯关游戏 |
+|  [拼豆图纸生成器](https://github.com/Cecilia11-cc/perler-bead-generator) | Python | 图片转拼豆图纸，内置 Mard 221 色卡 |
+|  [PDF → LaTeX](https://github.com/Cecilia11-cc/pdf2latex-via-deepseek) | Python + DeepSeek API | 中文论文 PDF 转 LaTeX 草稿 |
+|  [科学小游戏](https://g8cdzx23d8.coze.site) | Coze 平台 | 面向小学生的科学思维闯关游戏 |
 
-## 技术栈
+##  技术栈
 
 纯静态页面，手写 HTML / CSS / JavaScript，KaTeX 数学渲染，D3.js + Rough.js 手绘图形，托管在 GitHub Pages。
