@@ -231,7 +231,7 @@ try {
   var stage = d3.select('#treeStage');
   var W = 800, H = 650;
   // 底部锚定：所有坐标基于 H 计算，画布变大树自动下移
-  var CX = W/2, GND = H*0.94, TRUNK_TOP = H*0.54, START_LEN = H*0.14, TRUNK_W = 22;
+  var CX = W/2, GND = H*0.94, TRUNK_TOP = H*0.56, START_LEN = H*0.16, TRUNK_W = 22;
 
   var svg = stage.append('svg').attr('viewBox','0 0 '+W+' '+H).attr('style','overflow:visible');
   var defs = svg.append('defs');
@@ -296,7 +296,7 @@ try {
 
   // ============ 递归分枝 ============
   var allTips = [];
-  var MAX_D = 5;
+  var MAX_D = 6;
   function pickLeafType(depth) {
     // 越深越末梢：混合比例 30%嫩绿 40%深绿 20%黄 10%枯
     var r = Math.random();
@@ -322,11 +322,13 @@ try {
     if (depth < MAX_D) {
       var n = depth === 0 ? 3 : 2;
       for (var i = 0; i < n; i++) {
-        var spread = 0.45 + (MAX_D-depth)*0.06;
+        // 角度限制随深度递减：早期枝条往上走，越靠近末梢越向外舒展
+        var floor = depth <= 1 ? -1.0 : depth <= 2 ? -0.55 : depth <= 3 ? -0.25 : -0.10;
+        var spread = 0.50 + (MAX_D-depth)*0.10;
         var ao = (i-(n-1)/2) * spread * 2 + (Math.random()-0.5)*0.50;
         var na = angle + ao;
-        if (na > -0.08) na = -0.08;
-        if (na < -Math.PI+0.08) na = -Math.PI+0.08;
+        if (na > floor) na = floor;
+        if (na < -Math.PI-floor) na = -Math.PI-floor;
         grow(x2, y2, len*rng(0.55,0.72), na, depth+1);
       }
     }
