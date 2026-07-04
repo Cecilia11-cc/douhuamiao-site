@@ -47,7 +47,7 @@
   .page-header .updated{display:inline-block;margin-top:0.6rem;font-size:0.8rem;color:var(--text-muted);background:var(--card-bg);padding:0.25rem 0.9rem;border-radius:var(--radius-full);border:1px solid var(--card-border);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 
   /* 树画布 */
-  .tree-stage{position:relative;width:100%;height:680px;margin:0 auto 0.2rem;overflow:visible}
+  .tree-stage{position:relative;width:100%;height:750px;margin:0 auto 0.2rem;overflow:visible}
   .tree-stage svg{width:100%;height:100%}
 
 
@@ -116,7 +116,7 @@
   .katex-display{overflow-x:auto;overflow-y:hidden;padding:0.3rem 0}
 
   @media(max-width:700px){
-    .tree-stage{height:520px}
+    .tree-stage{height:560px}
     .leaf-grid{grid-template-columns:1fr}
     .page-header h1{font-size:2.2rem}
     .legend{gap:0.7rem;font-size:0.75rem}
@@ -228,7 +228,7 @@
 // ===== D3 + Rough.js 手绘水彩树 =====
 (function(){
   var stage = d3.select('#treeStage');
-  var W = 1000, H = 680;
+  var W = 1000, H = 750;
 
   var svg = stage.append('svg').attr('viewBox','0 0 '+W+' '+H).attr('style','overflow:visible');
   var defs = svg.append('defs');
@@ -264,7 +264,7 @@
   var rng = function(a,b){return a+Math.random()*(b-a);};
 
   // ---- 地面阴影 ----
-  svg.append('ellipse').attr('cx',500).attr('cy',665).attr('rx',240).attr('ry',22).attr('fill','url(#ground)');
+  svg.append('ellipse').attr('cx',500).attr('cy',735).attr('rx',240).attr('ry',20).attr('fill','url(#ground)');
 
   // ---- 树干（rough 路径，上细下粗） ----
   R.appendChild(rc.path('M486 625 Q484 520 490 400 Q492 360 494 340 L506 340 Q508 360 510 400 Q516 520 514 625 Z',
@@ -318,18 +318,20 @@
     if (depth < MAX_D) {
       var n = depth === 0 ? 3 : 2;
       for (var i = 0; i < n; i++) {
-        var spread = 0.35 + (MAX_D-depth)*0.08;
-        var ao = (i-(n-1)/2) * spread * 2 + (Math.random()-0.5)*0.45;
+        var spread = 0.28 + (MAX_D-depth)*0.05;
+        var ao = (i-(n-1)/2) * spread * 2 + (Math.random()-0.5)*0.30;
         var na = angle + ao;
-        if (na < -Math.PI*0.85 && na > -Math.PI*1.15) na = angle + ao*0.5;
-        grow(x2, y2, len*rng(0.55,0.75), na, depth+1);
+        // 硬限制：不超出画布左右，不向下
+        if (na > -0.25) na = -0.25;
+        if (na < -Math.PI+0.25) na = -Math.PI+0.25;
+        grow(x2, y2, len*rng(0.55,0.72), na, depth+1);
       }
     }
   }
   grow(500, 345, 180, -Math.PI/2, 0);
 
   // ---- 筛出冠层末梢（depth >= 3，且在画布内） ----
-  var canopyTips = allTips.filter(function(t){return t.d>=3 && t.x>120 && t.x<880 && t.y>40 && t.y<420;});
+  var canopyTips = allTips.filter(function(t){return t.d>=3 && t.x>80 && t.x<920 && t.y>40 && t.y<480;});
   // 去重：相近的点合并
   var uniqueTips = [];
   canopyTips.forEach(function(t){
@@ -360,7 +362,7 @@
   var deadLeaves = [];
   function createDeadLeaf() {
     return {
-      x: rng(250,750), y: rng(-50,100),
+      x: rng(200,800), y: rng(-50,120),
       speedY: 0.3+rng(0,1.0), speedX: (Math.random()-0.5)*0.5,
       rotation: rng(0,Math.PI*2), rotSpeed: (Math.random()-0.5)*0.004,
       img: leafCache[Math.floor(Math.random()*leafCache.length)],
@@ -390,7 +392,7 @@
   animateFallingLeaves();
 
   // ---- 内容节点（选取冠层中深度适中的末梢） ----
-  var nodeTips = uniqueTips.filter(function(t){return t.d>=3 && t.d<=5 && t.y<400;});
+  var nodeTips = uniqueTips.filter(function(t){return t.d>=3 && t.d<=5 && t.y<460;});
   // 按 x 坐标排序后均匀采样
   nodeTips.sort(function(a,b){return a.x-b.x;});
   var sampled = [];
@@ -448,9 +450,9 @@
   // ============ 连接线：树 → 下方分区 ============
   // 三条藤蔓从树根区域向下延伸，指向三个展示区
   var VINES = [
-    {x1:320,y1:650,x2:280,y2:690,color:'#3A7D29'},  // 左 → 核心书单
-    {x1:500,y1:655,x2:500,y2:695,color:'#B8F36B'},  // 中 → 可以试试
-    {x1:680,y1:650,x2:720,y2:690,color:'#F9C74F'},  // 右 → 正在过渡
+    {x1:320,y1:720,x2:280,y2:760,color:'#3A7D29'},  // 左 → 核心书单
+    {x1:500,y1:725,x2:500,y2:765,color:'#B8F36B'},  // 中 → 可以试试
+    {x1:680,y1:720,x2:720,y2:760,color:'#F9C74F'},  // 右 → 正在过渡
   ];
   VINES.forEach(function(v){
     R.appendChild(rc.curve(v.x1,v.y1,v.x1,v.y1+15,v.x2,v.y2-15,v.x2,v.y2,
