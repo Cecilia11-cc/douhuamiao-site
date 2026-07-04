@@ -207,57 +207,65 @@
       <path d="M347 240 Q348 180 349 140" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" fill="none"/>
       <path d="M352 230 Q351 170 350 130" stroke="rgba(0,0,0,0.06)" stroke-width="1" fill="none"/>
 
-      <!-- 枝条 -->
-      <g stroke="#8d9a6e" stroke-linecap="round" fill="none">
-        <!-- 主枝 左上 -->
-        <path d="M348 118 Q300 100 250 78" stroke-width="2.5" stroke-opacity="0.7"/>
-        <path d="M348 118 Q310 108 280 95" stroke-width="1.8" stroke-opacity="0.55"/>
-        <!-- 主枝 右上 -->
-        <path d="M354 112 Q400 90 450 70" stroke-width="2.5" stroke-opacity="0.7"/>
-        <path d="M354 112 Q410 100 440 90" stroke-width="1.8" stroke-opacity="0.55"/>
-        <!-- 中枝 左下 -->
-        <path d="M349 135 Q300 145 240 148" stroke-width="2" stroke-opacity="0.6"/>
-        <path d="M349 135 Q310 150 280 155" stroke-width="1.5" stroke-opacity="0.45"/>
-        <!-- 中枝 右下 -->
-        <path d="M353 130 Q400 140 460 142" stroke-width="2" stroke-opacity="0.6"/>
-        <path d="M353 130 Q410 148 440 150" stroke-width="1.5" stroke-opacity="0.45"/>
-        <!-- 下枝 左 -->
-        <path d="M350 160 Q310 175 270 185" stroke-width="1.5" stroke-opacity="0.5"/>
-        <!-- 下枝 右 -->
-        <path d="M352 155 Q390 170 430 178" stroke-width="1.5" stroke-opacity="0.5"/>
+      <!-- 枝条（画在树冠上面才看得见） -->
+      <g stroke="#7d6b5d" stroke-linecap="round" fill="none">
+        <!-- 左上主枝 -->
+        <path d="M347 120 Q300 95 240 72" stroke-width="3.5" stroke-opacity="0.85"/>
+        <path d="M345 118 Q310 102 275 90" stroke-width="2.2" stroke-opacity="0.7"/>
+        <path d="M270 88 Q255 80 235 78" stroke-width="1.5" stroke-opacity="0.55"/>
+        <!-- 右上主枝 -->
+        <path d="M353 116 Q400 88 455 65" stroke-width="3.5" stroke-opacity="0.85"/>
+        <path d="M355 114 Q410 98 445 88" stroke-width="2.2" stroke-opacity="0.7"/>
+        <path d="M440 86 Q460 78 475 72" stroke-width="1.5" stroke-opacity="0.55"/>
+        <!-- 左下枝 -->
+        <path d="M348 140 Q290 148 225 155" stroke-width="2.8" stroke-opacity="0.8"/>
+        <path d="M346 138 Q300 152 270 158" stroke-width="1.8" stroke-opacity="0.6"/>
+        <!-- 右下枝 -->
+        <path d="M354 136 Q410 148 465 152" stroke-width="2.8" stroke-opacity="0.8"/>
+        <path d="M356 134 Q415 155 445 160" stroke-width="1.8" stroke-opacity="0.6"/>
+        <!-- 下侧小枝 -->
+        <path d="M349 165 Q310 182 265 192" stroke-width="1.8" stroke-opacity="0.65"/>
+        <path d="M353 162 Q395 178 435 185" stroke-width="1.8" stroke-opacity="0.65"/>
+        <!-- 顶部分叉 -->
+        <path d="M346 112 Q320 88 300 80" stroke-width="2" stroke-opacity="0.7"/>
+        <path d="M355 108 Q380 82 400 75" stroke-width="2" stroke-opacity="0.7"/>
       </g>
 
-      <!-- SVG 叶子（静态装饰） -->
+      <!-- SVG 叶子（静态装饰，挂在枝条末端） -->
       <g>
         <!-- 嫩绿小叶 -->
-        <ellipse cx="260" cy="72" rx="5" ry="7" fill="#a5d6a7" transform="rotate(-30 260 72)" opacity="0.8"/>
-        <ellipse cx="435" cy="66" rx="5" ry="7" fill="#a5d6a7" transform="rotate(20 435 66)" opacity="0.8"/>
-        <ellipse cx="280" cy="150" rx="4" ry="6" fill="#a5d6a7" transform="rotate(-25 280 150)" opacity="0.7"/>
+        <ellipse cx="242" cy="68" rx="5" ry="7" fill="#a5d6a7" transform="rotate(-30 242 68)" opacity="0.85"/>
+        <ellipse cx="450" cy="60" rx="5" ry="7" fill="#a5d6a7" transform="rotate(20 450 60)" opacity="0.85"/>
+        <ellipse cx="230" cy="150" rx="5" ry="7" fill="#a5d6a7" transform="rotate(-25 230 150)" opacity="0.8"/>
+        <ellipse cx="460" cy="148" rx="5" ry="7" fill="#a5d6a7" transform="rotate(15 460 148)" opacity="0.8"/>
         <!-- 深绿大叶 -->
-        <ellipse cx="220" cy="85" rx="7" ry="9" fill="#2E7D32" transform="rotate(-35 220 85)" opacity="0.75"/>
-        <ellipse cx="470" cy="75" rx="7" ry="9" fill="#2E7D32" transform="rotate(35 470 75)" opacity="0.75"/>
-        <ellipse cx="250" cy="95" rx="6" ry="8" fill="#388E3C" transform="rotate(-40 250 95)" opacity="0.7"/>
-        <ellipse cx="445" cy="88" rx="6" ry="8" fill="#388E3C" transform="rotate(30 445 88)" opacity="0.7"/>
-        <ellipse cx="420" cy="140" rx="6" ry="8" fill="#2E7D32" transform="rotate(25 420 140)" opacity="0.65"/>
-        <ellipse cx="290" cy="145" rx="5" ry="7" fill="#388E3C" transform="rotate(-30 290 145)" opacity="0.65"/>
+        <ellipse cx="248" cy="85" rx="8" ry="10" fill="#2E7D32" transform="rotate(-35 248 85)" opacity="0.8"/>
+        <ellipse cx="448" cy="82" rx="8" ry="10" fill="#2E7D32" transform="rotate(35 448 82)" opacity="0.8"/>
+        <ellipse cx="275" cy="90" rx="7" ry="9" fill="#388E3C" transform="rotate(-40 275 90)" opacity="0.75"/>
+        <ellipse cx="435" cy="85" rx="7" ry="9" fill="#388E3C" transform="rotate(30 435 85)" opacity="0.75"/>
+        <ellipse cx="300" cy="78" rx="6" ry="8" fill="#2E7D32" transform="rotate(-30 300 78)" opacity="0.7"/>
+        <ellipse cx="395" cy="72" rx="6" ry="8" fill="#2E7D32" transform="rotate(25 395 72)" opacity="0.7"/>
         <!-- 黄叶 -->
-        <ellipse cx="330" cy="82" rx="5" ry="8" fill="#d4a843" transform="rotate(-20 330 82)" opacity="0.7"/>
-        <ellipse cx="390" cy="148" rx="5" ry="7" fill="#d4a843" transform="rotate(15 390 148)" opacity="0.65"/>
+        <ellipse cx="270" cy="155" rx="6" ry="8" fill="#d4a843" transform="rotate(-20 270 155)" opacity="0.75"/>
+        <ellipse cx="440" cy="156" rx="6" ry="8" fill="#d4a843" transform="rotate(15 440 156)" opacity="0.75"/>
+        <ellipse cx="265" cy="188" rx="5" ry="7" fill="#d4a843" transform="rotate(-25 265 188)" opacity="0.7"/>
+        <ellipse cx="430" cy="180" rx="5" ry="7" fill="#d4a843" transform="rotate(20 430 180)" opacity="0.7"/>
       </g>
     </svg>
 
-    <!-- CSS 叶片（带交互动画） -->
-    <div class="hanging-leaf bud" style="top:58px;left:36%"></div>
-    <div class="hanging-leaf bud" style="top:63px;right:38%"></div>
-    <div class="hanging-leaf bud" style="top:140px;left:41%"></div>
-    <div class="hanging-leaf dark" style="top:50px;left:30%"></div>
-    <div class="hanging-leaf dark" style="top:45px;right:32%"></div>
-    <div class="hanging-leaf dark" style="top:68px;left:25%"></div>
-    <div class="hanging-leaf dark" style="top:75px;right:27%"></div>
-    <div class="hanging-leaf dark" style="top:135px;right:42%"></div>
-    <div class="hanging-leaf dark" style="top:128px;left:32%"></div>
-    <div class="hanging-leaf yel" style="top:95px;left:38%"></div>
-    <div class="hanging-leaf yel" style="top:145px;right:35%"></div>
+    <!-- CSS 叶片（带交互动画，叠在枝条末端） -->
+    <div class="hanging-leaf bud" style="top:56px;left:33%"></div>
+    <div class="hanging-leaf bud" style="top:52px;right:33%"></div>
+    <div class="hanging-leaf bud" style="top:140px;left:31%"></div>
+    <div class="hanging-leaf bud" style="top:136px;right:34%"></div>
+    <div class="hanging-leaf dark" style="top:78px;left:24%"></div>
+    <div class="hanging-leaf dark" style="top:74px;right:26%"></div>
+    <div class="hanging-leaf dark" style="top:62px;left:37%"></div>
+    <div class="hanging-leaf dark" style="top:58px;right:37%"></div>
+    <div class="hanging-leaf dark" style="top:145px;right:40%"></div>
+    <div class="hanging-leaf dark" style="top:150px;left:26%"></div>
+    <div class="hanging-leaf yel" style="top:175px;left:36%"></div>
+    <div class="hanging-leaf yel" style="top:170px;right:36%"></div>
     <div class="falling-leaf f1"></div>
     <div class="falling-leaf f2"></div>
     <div class="falling-leaf f3"></div>
