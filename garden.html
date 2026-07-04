@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>枝叶 — 豆花喵的小栈</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}]})"></script>
 <style>
   :root{--green:#2E7D32;--green-light:#4CAF50;--green-pale:#e8f5e9;--blue:#1976D2;--blue-light:#42A5F5;--blue-pale:#e3f2fd;--purple:#7B1FA2;--purple-light:#AB47BC;--purple-pale:#f3e5f5;--orange:#E65100;--orange-light:#FF9800;--text:#1e293b;--text-muted:#64748b;--card-bg:rgba(255,255,255,0.82);--card-border:rgba(255,255,255,0.55);--shadow-sm:0 4px 16px rgba(0,0,0,0.06);--shadow-md:0 8px 32px rgba(0,0,0,0.09);--radius-sm:12px;--radius-md:20px;--radius-full:50px;--transition:0.3s cubic-bezier(.4,0,.2,1)}
   *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -54,6 +57,8 @@
 
   /* ===== 娱乐叶片 ===== */
   .leaf.hobby{border-left:3px solid transparent;transition:all var(--transition)}
+  .katex{font-size:1.05em}
+  .katex-display{overflow-x:auto;overflow-y:hidden;padding:0.3rem 0}
   .leaf.hobby:nth-child(1){border-left-color:var(--green-light)}
   .leaf.hobby:nth-child(2){border-left-color:var(--blue-light)}
   .leaf.hobby:nth-child(3){border-left-color:var(--purple-light)}
