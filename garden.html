@@ -445,6 +445,37 @@
 
   // （CSS 叶片已移除——只保留 Rough.js 手绘叶片 + Canvas 飘落枯叶）
 
+  // ============ 页面图标手绘化 ============
+  function roughIcon(el, fill, w, h, rot) {
+    var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('width', w*2.5); svg.setAttribute('height', h*2.5);
+    svg.style.cssText = 'display:inline-block;vertical-align:middle;flex-shrink:0;';
+    var rcIcon = rough.svg(svg, {options:{roughness:1.8,bowing:1.5}});
+    svg.appendChild(rcIcon.ellipse(w*1.25, h*1.25, w*2, h*2.2,
+      {fill:fill, fillStyle:'solid', roughness:1.5, bowing:1.2}));
+    if (rot) svg.style.transform = 'rotate('+rot+'deg)';
+    el.replaceWith(svg);
+  }
+  var ICON_COLORS = {bud:'#B8F36B',dark:'#3A7D29',yellow:'#F9C74F',fall:'#B5835A'};
+  // 图例小点
+  document.querySelectorAll('.legend .dot').forEach(function(el){
+    for (var k in ICON_COLORS) if (el.classList.contains(k)) roughIcon(el, ICON_COLORS[k], 5, 6, -38);
+  });
+  // 分区叶片标记
+  document.querySelectorAll('.leaf-marker').forEach(function(el){
+    var sz = el.classList.contains('dark')?{w:8,h:10}:el.classList.contains('yellow')?{w:7,h:8}:{w:6,h:8};
+    for (var k in ICON_COLORS) if (el.classList.contains(k)) roughIcon(el, ICON_COLORS[k], sz.w, sz.h, -40);
+  });
+  // 纪念册压制叶片
+  document.querySelectorAll('.specimen .pressed').forEach(function(el){
+    var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('width','50'); svg.setAttribute('height','58');
+    svg.style.cssText = 'flex-shrink:0;';
+    var rcP = rough.svg(svg, {options:{roughness:2,bowing:1.8}});
+    svg.appendChild(rcP.ellipse(25,29,24,30,{fill:'#c4956a',fillStyle:'cross-hatch',roughness:2.2,bowing:1.5}));
+    el.replaceWith(svg);
+  });
+
 })();
 </script>
 
