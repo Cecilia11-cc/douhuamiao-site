@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>二重积分进阶与空间几何生成 — 豆花喵的小栈</title>
+<style>
+  :root{--green:#2E7D32;--green-light:#4CAF50;--green-pale:#e8f5e9;--blue:#1976D2;--blue-light:#42A5F5;--blue-pale:#e3f2fd;--purple:#7B1FA2;--purple-light:#AB47BC;--purple-pale:#f3e5f5;--orange:#E65100;--orange-light:#FF9800;--text:#1e293b;--text-muted:#64748b;--card-bg:rgba(255,255,255,0.82);--card-border:rgba(255,255,255,0.55);--shadow-sm:0 4px 16px rgba(0,0,0,0.06);--shadow-md:0 8px 32px rgba(0,0,0,0.09);--shadow-lg:0 12px 40px rgba(0,0,0,0.13);--radius-sm:12px;--radius-md:20px;--radius-full:50px;--transition:0.3s cubic-bezier(.4,0,.2,1)}
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI','PingFang SC','Noto Serif SC',system-ui,-apple-system,sans-serif;background:linear-gradient(135deg,var(--green-pale) 0%,var(--blue-pale) 40%,var(--purple-pale) 100%) fixed;color:var(--text);min-height:100vh;line-height:1.85;font-size:1.05rem}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,200,0.22) 0%,transparent 55%),radial-gradient(circle at 70% 60%,rgba(200,230,255,0.20) 0%,transparent 55%);pointer-events:none;z-index:0}
+  .container{max-width:1100px;margin:0 auto;padding:2rem 1.5rem 4rem;position:relative;z-index:1}
+  .page-layout{display:flex;gap:2rem;align-items:flex-start}
+  .sidebar{width:220px;flex-shrink:0;position:sticky;top:6rem}
+  .main-content{flex:1;min-width:0}
+  nav.top-bar{display:flex;gap:1rem;align-items:center;margin-bottom:2.5rem;background:var(--card-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:0.7rem 2rem;border-radius:var(--radius-full);box-shadow:var(--shadow-md);position:sticky;top:1rem;z-index:10}
+  nav.top-bar a{text-decoration:none;font-weight:600;color:var(--green);padding:0.4rem 1.1rem;border-radius:var(--radius-full);transition:all var(--transition);font-size:0.95rem}
+  nav.top-bar a:hover{background:var(--green);color:#fff;box-shadow:0 2px 12px rgba(46,125,50,0.35)}
+  nav.top-bar a.back::before{content:'← '}
+  .article-header{margin-bottom:2.5rem}
+  .article-header .date{font-size:0.88rem;color:var(--text-muted);font-family:'Cascadia Code','Fira Code','Consolas',monospace;letter-spacing:0.04em;margin-bottom:0.5rem}
+  .article-header h1{font-size:1.9rem;margin-bottom:1rem;background:linear-gradient(135deg,var(--green) 0%,var(--blue) 60%,var(--purple) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;letter-spacing:0.02em;line-height:1.35}
+  .article-header .subtitle{font-size:1.05rem;color:var(--text-muted);font-style:italic}
+  .tags{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem}
+  .tag{display:inline-block;padding:0.25rem 0.85rem;border-radius:var(--radius-sm);font-size:0.78rem;font-weight:600;color:#fff;background:var(--green-light);letter-spacing:0.03em}
+  .tag.blue{background:var(--blue-light)}.tag.purple{background:var(--purple-light)}.tag.orange{background:var(--orange-light)}
+  .card{background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:var(--radius-md);padding:2rem;margin-bottom:1.8rem;box-shadow:var(--shadow-md);border:1px solid var(--card-border);position:relative;overflow:hidden}
+  .card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green-light),var(--blue-light),var(--purple-light));opacity:0;transition:opacity var(--transition)}
+  .card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}.card:hover::after{opacity:1}
+  h2{font-size:1.6rem;margin:2rem 0 1rem;color:var(--green);padding-left:1.2rem;position:relative;font-weight:700}
+  h2::before{content:'';position:absolute;left:0;top:0.15em;bottom:0.15em;width:5px;border-radius:3px;background:linear-gradient(180deg,var(--blue-light),var(--purple-light))}
+  h3{margin:1.5rem 0 0.7rem;color:var(--blue);font-size:1.2rem;font-weight:700}
+  h4{margin:1.2rem 0 0.5rem;color:var(--purple);font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:0.45rem}
+  h4::before{content:'';display:inline-block;width:8px;height:8px;background:var(--purple-light);border-radius:2px;transform:rotate(45deg);flex-shrink:0}
+  p{margin-bottom:0.85rem}ul,ol{padding-left:1.5rem;margin-bottom:0.85rem}li{padding:0.2rem 0;line-height:1.75}
+  .math{font-family:'Georgia','Times New Roman','STIX Two Math',serif;font-style:italic;color:#1a1a2e;background:rgba(0,0,0,0.03);padding:0.1em 0.3em;border-radius:4px}
+  .math-block{display:block;text-align:center;margin:1.2rem 0;padding:0.8rem 1rem;background:rgba(0,0,0,0.02);border-radius:8px;font-family:'Georgia','Times New Roman','STIX Two Math',serif;font-style:italic;font-size:1.1rem;overflow-x:auto;white-space:nowrap}
+  .key-point{background:rgba(46,125,50,0.06);padding:1rem 1.3rem;border-radius:var(--radius-sm);border-left:4px solid var(--green-light);margin:1rem 0;font-size:0.95rem}
+  .key-point strong{color:var(--green)}
+  .insight-box{background:linear-gradient(135deg,rgba(255,248,200,0.5),rgba(255,243,224,0.5));padding:1rem 1.3rem;border-radius:var(--radius-sm);border-left:4px solid var(--orange-light);margin:1rem 0;font-size:0.95rem}
+  .insight-box .label{font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:0.08em;font-size:0.78rem;margin-bottom:0.4rem}
+  blockquote{border-left:4px solid var(--purple-light);margin:1rem 0;padding:0.6rem 1.2rem;background:rgba(123,31,162,0.04);border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--text-muted);font-style:italic}
+  .toc{background:var(--card-bg);backdrop-filter:blur(8px);border-radius:var(--radius-md);padding:1.3rem 1.2rem 1.1rem;margin-bottom:0;box-shadow:var(--shadow-sm);border:1px solid var(--card-border)}
+  .toc h3{margin-top:0;color:var(--green);font-size:0.92rem;font-weight:700;letter-spacing:0.04em;padding-bottom:0.6rem;margin-bottom:0.7rem;border-bottom:1px solid rgba(46,125,50,0.1)}
+  .toc h3::after{content:'';display:block;width:22px;height:1.5px;background:var(--green-light);margin-top:0.45rem;border-radius:1px}
+  .toc ol{padding-left:0.6rem;list-style:none;border-left:1px solid rgba(46,125,50,0.12)}
+  .toc li{padding:0.3rem 0 0.3rem 0.1rem;line-height:1.4;font-size:0.86rem;position:relative;display:flex;align-items:flex-start;gap:0.5rem}
+  .toc li::before{content:'';display:block;width:7px;height:9px;background:var(--green-light);border-radius:80% 0 80% 0;transform:rotate(-40deg);flex-shrink:0;opacity:0.45;transition:all var(--transition);margin-top:0.25rem}
+  .toc li:hover::before{opacity:0.85;transform:rotate(-40deg) scale(1.2);background:var(--green)}
+  .toc li:has(a.active)::before{opacity:1;background:var(--green);box-shadow:0 0 5px rgba(46,125,50,0.25)}
+  .toc a{color:var(--text);text-decoration:none;transition:color 0.2s}.toc a:hover{color:var(--green)}.toc a.active{color:var(--green);font-weight:700}
+  .table-wrap{overflow-x:auto;margin:1rem 0}table{width:100%;border-collapse:collapse}th,td{padding:0.55rem 0.8rem;text-align:left;border-bottom:1px solid rgba(0,0,0,0.08)}th{font-weight:700;color:var(--green);border-bottom-width:2px}
+  .ornament{display:flex;align-items:center;gap:0.6rem;margin:2rem 0 1rem;color:var(--text-muted);font-size:0.88rem;font-style:italic}
+  .ornament::before,.ornament::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(0,0,0,0.1),transparent)}
+  footer{text-align:center;padding:2rem 1rem 2.5rem;color:var(--text-muted);font-size:0.9rem;position:relative;z-index:1}
+  footer::before{content:'';display:block;width:64px;height:2px;background:linear-gradient(90deg,var(--green-light),var(--blue-light),var(--purple-light));margin:0 auto 1rem;border-radius:1px}
+  .btn{display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg,var(--green),var(--green-light));color:#fff;padding:0.6rem 1.6rem;border-radius:var(--radius-full);text-decoration:none;font-weight:600;font-size:0.95rem;transition:all var(--transition);border:none;cursor:pointer;box-shadow:0 2px 8px rgba(46,125,50,0.2)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(46,125,50,0.35)}
+  @media(max-width:860px){.page-layout{flex-direction:column}.sidebar{width:100%;position:static}.toc ol{display:flex;flex-wrap:wrap;gap:0.3rem 1rem;padding-left:0;list-style:none;border-left:none}.toc li{font-size:0.85rem}.toc li::before{display:none}}
+  @media(max-width:600px){.container{padding:1rem 1rem 2rem}.article-header h1{font-size:1.5rem}h2{font-size:1.3rem}.card{padding:1.2rem}nav.top-bar{gap:0.3rem;padding:0.5rem 0.8rem}}
+</style>
+</head>
+<body>
+<div class="container">
+  <nav class="top-bar"><a href="../index.html#blog" class="back">返回小记</a><a href="../index.html">首页</a></nav>
+  <header class="article-header">
+    <p class="date">2026 · 07 · 04</p>
+    <h1>二重积分进阶与空间几何生成</h1>
+    <p class="subtitle">从累次积分综合练习，到区域边界的X/Y型互换，再到用母线和准线创造一切几何体</p>
+    <div class="tags"><span class="tag">微积分</span><span class="tag blue">二重积分</span><span class="tag purple">空间几何</span><span class="tag orange">综合</span></div>
+  </header>
+
+  <div class="page-layout">
+  <aside class="sidebar">
+    <nav class="toc" aria-label="文章目录">
+      <h3>本文地图</h3>
+      <ol>
+        <li><a href="#s1">累次积分：逐步增大难度</a></li>
+        <li><a href="#s2">区域边界辨析：x=y²还是x=√y</a></li>
+        <li><a href="#s3">对称简化技巧</a></li>
+        <li><a href="#s4">综合练习8题详解</a></li>
+        <li><a href="#s5">锥体 vs 抛物面</a></li>
+        <li><a href="#s6">母线+旋转：生成一切旋转体</a></li>
+        <li><a href="#s7">准线+平移：柱面的统一原理</a></li>
+      </ol>
+    </nav>
+  </aside>
+  <div class="main-content">
+
+  <section id="s1" class="card">
+    <h2>一、累次积分：逐步增大难度</h2>
+    <p>底部区域固定在 [0,1]×[0,1]，只换顶面 z=f(x,y)：</p>
+    <div class="table-wrap"><table>
+      <tr><th>#</th><th>f(x,y)</th><th>考点</th><th>结果</th></tr>
+      <tr><td>1</td><td>z=1</td><td>基准：体积=底面积</td><td>1</td></tr>
+      <tr><td>2</td><td>z=x</td><td>只依赖一个变量，直接乘区间长度</td><td>1/2</td></tr>
+      <tr><td>3</td><td>z=x+y</td><td>可分离变量的线性组合</td><td>1</td></tr>
+      <tr><td>4</td><td>z=xy</td><td>可分离变量</td><td>1/4</td></tr>
+      <tr><td>5</td><td>z=x²+y²</td><td>多项式逐项积分</td><td>2/3</td></tr>
+      <tr><td>6</td><td>z=e^{x+y}</td><td>指数可分离：e^{x+y}=eˣeʸ</td><td>(e-1)²</td></tr>
+      <tr><td>9</td><td>z=max(x,y)</td><td>分段函数，须拆区域</td><td>2/3</td></tr>
+      <tr><td>10</td><td>z=1/(1+x²)</td><td>结果含π：arctan出现</td><td>π/4</td></tr>
+    </table></div>
+
+    <h3>题9详解：max(x,y) 在正方形上的积分</h3>
+    <p>正方形被 y=x 分成两块。下三角(y≤x)：max=x；上三角(y≥x)：max=y。两块对称，算一块乘2。</p>
+    <p class="math-block">∫_0^1 ∫_0^x x dy dx = ∫_0^1 x² dx = 1/3，两倍 = 2/3</p>
+  </section>
+
+  <section id="s2" class="card">
+    <h2>二、区域边界辨析：x=y² 还是 x=√y？</h2>
+    <p>这两个不是同一个函数，它们互为反函数，关于 y=x 对称。在 [0,1] 内，√y > y²。</p>
+
+    <h3>题例：0≤y≤1, y²≤x≤y</h3>
+    <p>边界：x=y²（抛物线）和 x=y（直线）。交点 (0,0),(1,1)。</p>
+    <div class="table-wrap"><table>
+      <tr><th>类型</th><th>外层</th><th>内层</th><th>下/左界</th><th>上/右界</th></tr>
+      <tr><td>Y型（原题）</td><td>y:0→1</td><td>x</td><td>x=y²</td><td>x=y</td></tr>
+      <tr><td>X型（换序）</td><td>x:0→1</td><td>y</td><td>y=x</td><td>y=√x</td></tr>
+    </table></div>
+
+    <div class="key-point"><strong>规则：</strong>积分限里的变量必须是当前积分层的变量。外层是y→内层限用y表示；外层是x→内层限用x表示。边界方程的形式跟着积分次序走，不是固定的。</div>
+
+    <h3>题4反过来：0≤x≤1, x²≤y≤√x</h3>
+    <div class="table-wrap"><table>
+      <tr><th>类型</th><th>外层</th><th>内层</th><th>下/左界</th><th>上/右界</th></tr>
+      <tr><td>X型（原题）</td><td>x:0→1</td><td>y</td><td>y=x²</td><td>y=√x</td></tr>
+      <tr><td>Y型（换序）</td><td>y:0→1</td><td>x</td><td>x=y²</td><td>x=√y</td></tr>
+    </table></div>
+    <p>两种区域形式完全对称，只是变量名互换。</p>
+  </section>
+
+  <section id="s3" class="card">
+    <h2>三、对称简化技巧</h2>
+    <p>当区域关于 y=x 对称（边界互为反函数）时：</p>
+    <div class="table-wrap"><table>
+      <tr><th>被积函数特征</th><th>可用简化</th><th>例</th></tr>
+      <tr><td>只含一个变量</td><td>内层直接乘区间长度</td><td>∫∫ x dσ → ∫ x(√x−x²)dx</td></tr>
+      <tr><td>f(x,y)=f(y,x)（对称）</td><td>只算一半乘2</td><td>x²+y²</td></tr>
+      <tr><td>f(x,y)=−f(y,x)（反对称）</td><td>直接=0，不用算</td><td>x−y → 0</td></tr>
+      <tr><td>对y积分困难</td><td>把y全换成x</td><td>∫∫ y³ dσ = ∫∫ x³ dσ</td></tr>
+    </table></div>
+  </section>
+
+  <section id="s4" class="card">
+    <h2>四、综合练习8题详解</h2>
+
+    <h3>题1：面积</h3><p>y=x²与y=2−x²，交点x=±1。A=8/3。</p>
+    <h3>题2：绕x轴体积</h3><p>y=lnx绕x轴。V=π∫₁ᵉ(lnx)²dx=π(e−2)。</p>
+    <h3>题3：绕非坐标轴</h3><p>y=x²与y=x绕x=1。壳层法，半径修正为1−x。V=π/6。</p>
+    <h3>题4：二重积分</h3><p>∫∫_D x dσ，D由y=x²与y=√x围成。=3/20。</p>
+    <h3>题5：max分段</h3><p>∫∫ e^{max(x²,y²)}dσ，正方[0,1]²。拆两块，对称。=e−1。</p>
+    <h3>题6：交换次序</h3><p>∫∫ sinx/x dσ。先x积不出→换序先y。=2。</p>
+    <h3>题7：极坐标</h3><p>arctan(y/x)=θ。环形第一象限。=3π²/16。</p>
+    <h3>题8：立体体积</h3><p>z=1−x²−y²与z=0。极坐标。V=π/2。</p>
+  </section>
+
+  <section id="s5" class="card">
+    <h2>五、锥体 vs 抛物面：一次方还是二次方</h2>
+    <p>令 r=√(x²+y²)，看 z 与 r 的关系：</p>
+    <div class="table-wrap"><table>
+      <tr><th>方程</th><th>r-z关系</th><th>类型</th><th>剖面</th></tr>
+      <tr><td>z=1−r</td><td>一次：r=1−z</td><td><strong>圆锥</strong></td><td>直线</td></tr>
+      <tr><td>z=1−r²</td><td>二次：r=√(1−z)</td><td><strong>旋转抛物面</strong></td><td>抛物线</td></tr>
+    </table></div>
+
+    <h3>为什么一次是锥？</h3>
+    <p>半径随高度<strong>均匀变化</strong>：z=1时r=0（尖点），z=0时r=1（底面）。截面圆从0均匀长到1，外轮廓是直线。</p>
+
+    <div class="key-point"><strong>口诀：</strong>一次方是锥，二次方是碗。r=z是正锥（向上开口），r=1−z是倒锥（向下开口）。和抛物线的开口规律一致——系数符号决定方向。</div>
+
+    <h3>为什么母线只需要半支？</h3>
+    <p>旋转体母线只需 r≥0 那一侧。y=√z 只是 z=y² 的上半支，但绕z轴旋转后自动补全对称。旋转这个动作决定截面永远是圆。</p>
+  </section>
+
+  <section id="s6" class="card">
+    <h2>六、母线 + 旋转：生成一切旋转体</h2>
+    <p>核心公式：母线在yOz平面 y=f(z), z∈[a,b]，绕z轴旋转→ r=f(z)，即 x²+y²=[f(z)]²。</p>
+
+    <div class="table-wrap"><table>
+      <tr><th>母线</th><th>形状</th><th>旋转体</th><th>方程</th></tr>
+      <tr><td>y=1</td><td>竖直线</td><td>圆柱</td><td>r=1</td></tr>
+      <tr><td>y=z</td><td>斜直线(45°)</td><td>圆锥(正)</td><td>r=z</td></tr>
+      <tr><td>y=1−z</td><td>斜直线(负斜率)</td><td>圆锥(倒)</td><td>z=1−r</td></tr>
+      <tr><td>y=√z</td><td>半支抛物线</td><td>旋转抛物面(碗)</td><td>z=r²</td></tr>
+      <tr><td>y=z²</td><td>抛物线</td><td>旋转抛物面(细腰)</td><td>r=z²</td></tr>
+      <tr><td>y=√(1−z²)</td><td>四分之一圆弧</td><td>半球</td><td>r²+z²=1</td></tr>
+      <tr><td>y=e^z</td><td>指数曲线</td><td>喇叭形</td><td>r=e^z</td></tr>
+      <tr><td>y=sin z</td><td>波浪线</td><td>花瓶形</td><td>r=sin z</td></tr>
+    </table></div>
+
+    <h3>创新题：你来生成</h3>
+    <ol>
+      <li>母线 y=sin z (z∈[0,π]) 绕z轴 → 花瓶形，r=sin z</li>
+      <li>母线 y=2 (z∈[0,1]) 绕z轴 → 圆柱面，r=2</li>
+      <li>母线 y=1/z (z∈[1,3]) 绕z轴 → 旋转双曲面，r=1/z</li>
+      <li>拼接母线：y=1+z (z∈[0,1]) + y=2 (z∈[1,2]) → 高脚杯</li>
+    </ol>
+
+    <h3>术语澄清</h3>
+    <div class="table-wrap"><table>
+      <tr><th>术语</th><th>定义</th><th>旋转体中</th><th>柱面中</th></tr>
+      <tr><td><strong>母线</strong></td><td>运动生成曲面的线</td><td>在平面内的曲线</td><td>直线</td></tr>
+      <tr><td><strong>准线</strong></td><td>母线运动所沿的固定曲线</td><td>（不直接出现）</td><td>椭圆/抛物线/双曲线</td></tr>
+      <tr><td><strong>旋转轴</strong></td><td>母线绕其旋转的直线</td><td>坐标轴</td><td>（不存在）</td></tr>
+    </table></div>
+  </section>
+
+  <section id="s7" class="card">
+    <h2>七、准线 + 平移：柱面的统一原理</h2>
+    <p>方程缺哪个变量，母线就平行于哪个坐标轴，准线就是另外两个变量构成的平面曲线。</p>
+
+    <div class="table-wrap"><table>
+      <tr><th>准线</th><th>母线方向</th><th>生成曲面</th><th>方程特征</th></tr>
+      <tr><td>圆 x²+y²=1</td><td>平行于z轴</td><td>圆柱面</td><td>缺z</td></tr>
+      <tr><td>椭圆 x²/a²+y²/b²=1</td><td>平行于z轴</td><td>椭圆柱面</td><td>缺z</td></tr>
+      <tr><td>抛物线 y=x²</td><td>平行于z轴</td><td>抛物柱面</td><td>缺z</td></tr>
+      <tr><td>双曲线 x²/a²−y²/b²=1</td><td>平行于z轴</td><td>双曲柱面</td><td>缺z</td></tr>
+    </table></div>
+
+    <div class="insight-box">
+      <div class="label">区分旋转体与柱面</div>
+      <p><strong>旋转体</strong>：母线绕轴转，截面是圆，方程有 x²+y²。<br><strong>柱面体</strong>：母线平移，截面是准线形状，方程缺一个变量。</p>
+    </div>
+
+    <h3>扩展到二次曲面</h3>
+    <p>如果旋转但母线换成椭圆/双曲线：</p>
+    <div class="table-wrap"><table>
+      <tr><th>母线</th><th>旋转轴</th><th>生成曲面</th></tr>
+      <tr><td>椭圆 y²/b²+z²/c²=1</td><td>z轴</td><td>旋转椭球面</td></tr>
+      <tr><td>双曲线 y²/b²−z²/c²=1</td><td>z轴</td><td>单叶旋转双曲面</td></tr>
+      <tr><td>双曲线 z²/c²−y²/b²=1</td><td>z轴</td><td>双叶旋转双曲面</td></tr>
+    </table></div>
+  </section>
+
+  <div class="ornament">对话来源：与 DeepSeek 的二重积分进阶与空间几何讨论 · 2026 年 7 月</div>
+  <p style="text-align:center;margin-top:1.5rem;"><a href="../index.html#blog" class="btn">← 返回小记列表</a></p>
+
+  </div></div>
+</div>
+<footer>豆花喵的小栈 · 像树木一样安静生长 · 每次新发现，都会种在这片小森林里</footer>
+<script>(function(){var links=document.querySelectorAll('.toc a');var sections=[];for(var i=0;i<links.length;i++){var id=links[i].getAttribute('href').replace('#','');var el=document.getElementById(id);if(el)sections.push({link:links[i],section:el})}function onScroll(){var scrollY=window.scrollY+120;var current=null;for(var i=0;i<sections.length;i++){if(sections[i].section.offsetTop<=scrollY)current=sections[i].link}for(var j=0;j<links.length;j++)links[j].classList.remove('active');if(current)current.classList.add('active')}window.addEventListener('scroll',onScroll,{passive:true});onScroll()})();</script>
+</body>
+</html>

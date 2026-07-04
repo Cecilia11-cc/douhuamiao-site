@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>求导、极限与积分：从定义到实战 — 豆花喵的小栈</title>
+<style>
+  :root {
+    --green:#2E7D32; --green-light:#4CAF50; --green-pale:#e8f5e9;
+    --blue:#1976D2; --blue-light:#42A5F5; --blue-pale:#e3f2fd;
+    --purple:#7B1FA2; --purple-light:#AB47BC; --purple-pale:#f3e5f5;
+    --orange:#E65100; --orange-light:#FF9800; --orange-pale:#fff3e0;
+    --text:#1e293b; --text-muted:#64748b;
+    --card-bg:rgba(255,255,255,0.82); --card-border:rgba(255,255,255,0.55);
+    --shadow-sm:0 4px 16px rgba(0,0,0,0.06);
+    --shadow-md:0 8px 32px rgba(0,0,0,0.09);
+    --shadow-lg:0 12px 40px rgba(0,0,0,0.13);
+    --radius-sm:12px; --radius-md:20px; --radius-full:50px;
+    --transition:0.3s cubic-bezier(.4,0,.2,1);
+  }
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:'Segoe UI','PingFang SC','Noto Serif SC',system-ui,-apple-system,sans-serif;
+    background:linear-gradient(135deg,var(--green-pale) 0%,var(--blue-pale) 40%,var(--purple-pale) 100%) fixed;
+    color:var(--text);min-height:100vh;line-height:1.85;font-size:1.05rem
+  }
+  body::before{
+    content:'';position:fixed;inset:0;
+    background:radial-gradient(circle at 30% 20%,rgba(255,255,200,0.22) 0%,transparent 55%),
+               radial-gradient(circle at 70% 60%,rgba(200,230,255,0.20) 0%,transparent 55%);
+    pointer-events:none;z-index:0
+  }
+  .container{max-width:1100px;margin:0 auto;padding:2rem 1.5rem 4rem;position:relative;z-index:1}
+  .page-layout{display:flex;gap:2rem;align-items:flex-start}
+  .sidebar{width:220px;flex-shrink:0;position:sticky;top:6rem}
+  .main-content{flex:1;min-width:0}
+
+  nav.top-bar{
+    display:flex;gap:1rem;align-items:center;margin-bottom:2.5rem;
+    background:var(--card-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    padding:0.7rem 2rem;border-radius:var(--radius-full);box-shadow:var(--shadow-md);
+    position:sticky;top:1rem;z-index:10
+  }
+  nav.top-bar a{text-decoration:none;font-weight:600;color:var(--green);padding:0.4rem 1.1rem;border-radius:var(--radius-full);transition:all var(--transition);font-size:0.95rem}
+  nav.top-bar a:hover{background:var(--green);color:#fff;box-shadow:0 2px 12px rgba(46,125,50,0.35)}
+  nav.top-bar a.back::before{content:'← '}
+
+  .article-header{margin-bottom:2.5rem}
+  .article-header .date{font-size:0.88rem;color:var(--text-muted);font-family:'Cascadia Code','Fira Code','Consolas',monospace;letter-spacing:0.04em;margin-bottom:0.5rem}
+  .article-header h1{font-size:2.2rem;margin-bottom:1rem;background:linear-gradient(135deg,var(--green) 0%,var(--blue) 60%,var(--purple) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;letter-spacing:0.02em;line-height:1.35}
+  .article-header .subtitle{font-size:1.05rem;color:var(--text-muted);font-style:italic}
+  .tags{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem}
+  .tag{display:inline-block;padding:0.25rem 0.85rem;border-radius:var(--radius-sm);font-size:0.78rem;font-weight:600;color:#fff;background:var(--green-light);letter-spacing:0.03em}
+  .tag.blue{background:var(--blue-light)}.tag.purple{background:var(--purple-light)}.tag.orange{background:var(--orange-light)}
+
+  .card{background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:var(--radius-md);padding:2rem;margin-bottom:1.8rem;box-shadow:var(--shadow-md);border:1px solid var(--card-border);position:relative;overflow:hidden}
+  .card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green-light),var(--blue-light),var(--purple-light));opacity:0;transition:opacity var(--transition)}
+  .card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}.card:hover::after{opacity:1}
+
+  h2{font-size:1.6rem;margin:2rem 0 1rem;color:var(--green);padding-left:1.2rem;position:relative;font-weight:700}
+  h2::before{content:'';position:absolute;left:0;top:0.15em;bottom:0.15em;width:5px;border-radius:3px;background:linear-gradient(180deg,var(--blue-light),var(--purple-light))}
+  h3{margin:1.5rem 0 0.7rem;color:var(--blue);font-size:1.2rem;font-weight:700}
+  h4{margin:1.2rem 0 0.5rem;color:var(--purple);font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:0.45rem}
+  h4::before{content:'';display:inline-block;width:8px;height:8px;background:var(--purple-light);border-radius:2px;transform:rotate(45deg);flex-shrink:0}
+  h5{margin:0.9rem 0 0.4rem;color:var(--text);font-size:0.98rem;font-weight:700}
+  p{margin-bottom:0.85rem}
+  ul,ol{padding-left:1.5rem;margin-bottom:0.85rem}
+  li{padding:0.2rem 0;line-height:1.75}
+
+  .math{font-family:'Georgia','Times New Roman','STIX Two Math',serif;font-style:italic;color:#1a1a2e;background:rgba(0,0,0,0.03);padding:0.1em 0.3em;border-radius:4px}
+  .math-block{display:block;text-align:center;margin:1.2rem 0;padding:0.8rem 1rem;background:rgba(0,0,0,0.02);border-radius:8px;font-family:'Georgia','Times New Roman','STIX Two Math',serif;font-style:italic;font-size:1.1rem;overflow-x:auto;white-space:nowrap}
+
+  .key-point{background:rgba(46,125,50,0.06);padding:1rem 1.3rem;border-radius:var(--radius-sm);border-left:4px solid var(--green-light);margin:1rem 0;font-size:0.95rem}
+  .key-point strong{color:var(--green)}
+  .insight-box{background:linear-gradient(135deg,rgba(255,248,200,0.5),rgba(255,243,224,0.5));padding:1rem 1.3rem;border-radius:var(--radius-sm);border-left:4px solid var(--orange-light);margin:1rem 0;font-size:0.95rem}
+  .insight-box .label{font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:0.08em;font-size:0.78rem;margin-bottom:0.4rem}
+
+  .theorem{background:linear-gradient(135deg,rgba(25,118,210,0.05),rgba(123,31,162,0.05));border:1px solid rgba(25,118,210,0.15);border-radius:var(--radius-sm);padding:1.2rem 1.5rem;margin:1.2rem 0}
+  .theorem .thm-title{font-weight:700;color:var(--blue);margin-bottom:0.5rem;font-size:1rem}
+
+  blockquote{border-left:4px solid var(--purple-light);margin:1rem 0;padding:0.6rem 1.2rem;background:rgba(123,31,162,0.04);border-radius:0 var(--radius-sm) var(--radius-sm) 0;color:var(--text-muted);font-style:italic}
+
+  .toc{background:var(--card-bg);backdrop-filter:blur(8px);border-radius:var(--radius-md);padding:1.3rem 1.2rem 1.1rem;margin-bottom:0;box-shadow:var(--shadow-sm);border:1px solid var(--card-border)}
+  .toc h3{margin-top:0;color:var(--green);font-size:0.92rem;font-weight:700;letter-spacing:0.04em;padding-bottom:0.6rem;margin-bottom:0.7rem;border-bottom:1px solid rgba(46,125,50,0.1)}
+  .toc h3::after{content:'';display:block;width:22px;height:1.5px;background:var(--green-light);margin-top:0.45rem;border-radius:1px}
+  .toc ol{padding-left:0.6rem;list-style:none;border-left:1px solid rgba(46,125,50,0.12)}
+  .toc li{padding:0.3rem 0 0.3rem 0.1rem;line-height:1.4;font-size:0.86rem;position:relative;display:flex;align-items:flex-start;gap:0.5rem}
+  .toc li::before{content:'';display:block;width:7px;height:9px;background:var(--green-light);border-radius:80% 0 80% 0;transform:rotate(-40deg);flex-shrink:0;opacity:0.45;transition:all var(--transition);margin-top:0.25rem}
+  .toc li:hover::before{opacity:0.85;transform:rotate(-40deg) scale(1.2);background:var(--green)}
+  .toc li:has(a.active)::before{opacity:1;background:var(--green);box-shadow:0 0 5px rgba(46,125,50,0.25)}
+  .toc a{color:var(--text);text-decoration:none;transition:color 0.2s}
+  .toc a:hover{color:var(--green)}
+  .toc a.active{color:var(--green);font-weight:700}
+
+  .table-wrap{overflow-x:auto;margin:1rem 0}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:0.55rem 0.8rem;text-align:left;border-bottom:1px solid rgba(0,0,0,0.08)}
+  th{font-weight:700;color:var(--green);border-bottom-width:2px}
+
+  .err-tag{display:inline-block;padding:0.15rem 0.55rem;border-radius:6px;font-size:0.75rem;font-weight:700;color:#fff;background:#c62828;margin-right:0.3rem;vertical-align:middle}
+  .ok-tag{display:inline-block;padding:0.15rem 0.55rem;border-radius:6px;font-size:0.75rem;font-weight:700;color:#fff;background:var(--green-light);margin-right:0.3rem;vertical-align:middle}
+
+  .prob-box{background:rgba(25,118,210,0.04);border:1px dashed var(--blue-light);border-radius:var(--radius-sm);padding:1.2rem 1.5rem;margin:1rem 0}
+  .prob-box .prob-num{font-weight:800;color:var(--blue);font-size:1.1rem;margin-bottom:0.5rem}
+
+  .step-list{list-style:none;padding:0;counter-reset:step}
+  .step-list li{counter-increment:step;padding:0.4rem 0 0.4rem 2.2rem;position:relative;line-height:1.7}
+  .step-list li::before{content:counter(step);position:absolute;left:0;top:0.45rem;width:1.5rem;height:1.5rem;background:var(--green-light);color:#fff;border-radius:50%;font-size:0.78rem;font-weight:700;text-align:center;line-height:1.5rem}
+
+  pre{background:#1e293b;color:#e2e8f0;padding:1rem 1.3rem;border-radius:var(--radius-sm);font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:0.86rem;overflow-x:auto;margin:0.8rem 0;line-height:1.6;white-space:pre}
+
+  .ornament{display:flex;align-items:center;gap:0.6rem;margin:2rem 0 1rem;color:var(--text-muted);font-size:0.88rem;font-style:italic}
+  .ornament::before,.ornament::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(0,0,0,0.1),transparent)}
+
+  footer{text-align:center;padding:2rem 1rem 2.5rem;color:var(--text-muted);font-size:0.9rem;position:relative;z-index:1}
+  footer::before{content:'';display:block;width:64px;height:2px;background:linear-gradient(90deg,var(--green-light),var(--blue-light),var(--purple-light));margin:0 auto 1rem;border-radius:1px}
+
+  .btn{display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg,var(--green),var(--green-light));color:#fff;padding:0.6rem 1.6rem;border-radius:var(--radius-full);text-decoration:none;font-weight:600;font-size:0.95rem;transition:all var(--transition);border:none;cursor:pointer;box-shadow:0 2px 8px rgba(46,125,50,0.2)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(46,125,50,0.35)}
+
+  @media(max-width:860px){
+    .page-layout{flex-direction:column}
+    .sidebar{width:100%;position:static}
+    .toc ol{display:flex;flex-wrap:wrap;gap:0.3rem 1rem;padding-left:0;list-style:none;border-left:none}
+    .toc li{font-size:0.85rem}
+    .toc li::before{display:none}
+  }
+  @media(max-width:600px){
+    .container{padding:1rem 1rem 2rem}
+    .article-header h1{font-size:1.6rem}
+    h2{font-size:1.3rem}
+    .card{padding:1.2rem}
+    nav.top-bar{gap:0.3rem;padding:0.5rem 0.8rem}
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <nav class="top-bar">
+    <a href="../index.html#blog" class="back">返回小记</a>
+    <a href="../index.html">首页</a>
+  </nav>
+
+  <header class="article-header">
+    <p class="date">2026 · 07 · 03</p>
+    <h1>求导、极限与积分：从定义到实战</h1>
+    <p class="subtitle">从最根本的导数定义出发，推导所有求导公式；再通过找茬题和积分练习，把计算基本功打扎实</p>
+    <div class="tags">
+      <span class="tag">微积分</span>
+      <span class="tag blue">求导</span>
+      <span class="tag purple">极限</span>
+      <span class="tag orange">积分</span>
+    </div>
+  </header>
+
+  <div class="page-layout">
+
+    <aside class="sidebar">
+      <nav class="toc" aria-label="文章目录">
+        <h3>本文地图</h3>
+        <ol>
+          <li><a href="#s1">导数定义：一切推导的起点</a></li>
+          <li><a href="#s2">四则运算求导法则</a></li>
+          <li><a href="#s3">链式法则</a></li>
+          <li><a href="#s4">基本初等函数推导</a></li>
+          <li><a href="#s5">e^x 的推导细节</a></li>
+          <li><a href="#s6">sin x 的推导与符号修正</a></li>
+          <li><a href="#s7">极限拆分合法性讨论</a></li>
+          <li><a href="#s8">极限10类常见错误</a></li>
+          <li><a href="#s9">10道找茬题与详解</a></li>
+          <li><a href="#s10">基本积分公式练习</a></li>
+        </ol>
+      </nav>
+    </aside>
+
+    <div class="main-content">
+
+  <!-- ===== Section 1 ===== -->
+  <section id="s1" class="card">
+    <h2>一、导数定义：一切推导的起点</h2>
+
+    <p>函数 <span class="math">f(x)</span> 在 <span class="math">x</span> 处的导数，定义为：</p>
+    <p class="math-block">f'(x) = lim<sub>h→0</sub> [f(x+h) − f(x)] / h</p>
+    <p>这是唯一的核心。所有求导公式都从这个极限推出来。</p>
+
+    <div class="key-point">
+      <strong>整个推导网络只需要四个"元初"极限：</strong>
+      <ol style="margin-top:0.5rem;">
+        <li>导数定义的极限</li>
+        <li>lim<sub>h→0</sub> (sin h)/h = 1（几何夹逼可证）</li>
+        <li>lim<sub>h→0</sub> (e^h − 1)/h = 1（由 e 的定义推出）</li>
+        <li>lim<sub>h→0</sub> (1+h)<sup>1/h</sup> = e（e 的定义）</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===== Section 2 ===== -->
+  <section id="s2" class="card">
+    <h2>二、四则运算的求导法则</h2>
+
+    <h3>和差法则：<span class="math">(f ± g)' = f' ± g'</span></h3>
+    <p>直接由极限的线性性质推出——极限可分配进和差。</p>
+
+    <h3>数乘法则：<span class="math">(c·f)' = c·f'</span></h3>
+    <p>常数 c 可以从极限中提出。</p>
+
+    <h3>乘积法则：<span class="math">(f·g)' = f'·g + f·g'</span></h3>
+    <p><strong>推导技巧——"加一项减一项"：</strong></p>
+    <p class="math-block">f(x+h)g(x+h) − f(x)g(x) = f(x+h)[g(x+h)−g(x)] + g(x)[f(x+h)−f(x)]</p>
+    <p>除以 <span class="math">h</span> 取极限，<span class="math">f(x+h)→f(x)</span>，即得乘积法则。</p>
+
+    <h3>商的法则：<span class="math">(f/g)' = (f'g − fg')/g²</span></h3>
+    <p>分子同样加一项减一项 <span class="math">f(x)g(x)</span>，结构类似于乘积法则的变形。</p>
+  </section>
+
+  <!-- ===== Section 3 ===== -->
+  <section id="s3" class="card">
+    <h2>三、链式法则（复合函数求导）</h2>
+
+    <p>若 <span class="math">y = f(g(x))</span>，则：</p>
+    <p class="math-block">dy/dx = f'(g(x)) · g'(x)</p>
+
+    <p><strong>直观推导：</strong>令 <span class="math">u = g(x)</span>，则：</p>
+    <p class="math-block">Δy/Δx = (Δy/Δu) · (Δu/Δx)</p>
+    <p>取极限 <span class="math">Δx→0</span>，则 <span class="math">Δu→0</span>（因 <span class="math">g</span> 可导必连续），得：</p>
+    <p class="math-block">dy/dx = (dy/du) · (du/dx)</p>
+    <p>严格推导需处理 <span class="math">Δu=0</span> 的边界情况，但直觉如此。</p>
+  </section>
+
+  <!-- ===== Section 4 ===== -->
+  <section id="s4" class="card">
+    <h2>四、基本初等函数的导数推导</h2>
+
+    <h3>常数函数：<span class="math">(c)' = 0</span></h3>
+    <p>分子恒为 0，极限为 0。</p>
+
+    <h3>幂函数：<span class="math">(x^n)' = nx^{n−1}</span></h3>
+    <p>用二项式展开 <span class="math">(x+h)^n</span>，减去 <span class="math">x^n</span> 后除以 <span class="math">h</span>，含 <span class="math">h</span> 的项在 <span class="math">h→0</span> 时全消失，仅剩 <span class="math">nx^{n−1}</span>。此公式对实数 <span class="math">n</span> 同样成立（可用对数求导证明）。</p>
+
+    <h3>指数函数：<span class="math">(e^x)' = e^x</span></h3>
+    <p>从定义出发：<span class="math">(e^{x+h}−e^x)/h = e^x·(e^h−1)/h</span>。由 e 的定义，<span class="math">lim_{h→0}(e^h−1)/h = 1</span>，故 <span class="math">(e^x)' = e^x</span>。详见第五节。</p>
+    <p>对于一般指数：<span class="math">(a^x)' = a^x·ln a</span>（将 <span class="math">a^x = e^{x·ln a}</span> 用链式法则）。</p>
+
+    <h3>对数函数：<span class="math">(ln x)' = 1/x</span>（x &gt; 0）</h3>
+    <p>用导数定义 + e 的极限性质：令 <span class="math">t = h/x</span>，极限化为 <span class="math">(1/x)·lim_{t→0} ln[(1+t)^{1/t}] = (1/x)·ln e = 1/x</span>。</p>
+
+    <h3>三角函数</h3>
+    <p><strong>sin x：</strong>用和角公式 <span class="math">sin(x+h)=sin x·cos h + cos x·sin h</span>，配合 <span class="math">lim(sin h)/h = 1</span> 和 <span class="math">lim(cos h−1)/h = 0</span>，得 <span class="math">(sin x)' = cos x</span>。详见第六节。</p>
+    <p><strong>cos x：</strong>类似推导，得 <span class="math">(cos x)' = −sin x</span>。</p>
+    <p><strong>tan x：</strong>写为 <span class="math">sin x/cos x</span>，用商法则，得 <span class="math">sec² x</span>。</p>
+
+    <h3>反三角函数</h3>
+    <p>用反函数法则或隐函数求导：</p>
+    <p><strong>arcsin x：</strong>令 <span class="math">y=arcsin x</span> 即 <span class="math">x=sin y</span>，对 x 求导得 <span class="math">1=cos y·dy/dx</span>，<span class="math">cos y=√(1−x²)</span>，故 <span class="math">(arcsin x)' = 1/√(1−x²)</span>。</p>
+    <p><strong>arctan x：</strong>令 <span class="math">y=arctan x</span> 即 <span class="math">x=tan y</span>，<span class="math">1=sec²y·dy/dx</span>，<span class="math">sec²y=1+x²</span>，故 <span class="math">(arctan x)' = 1/(1+x²)</span>。</p>
+  </section>
+
+  <!-- ===== Section 5 ===== -->
+  <section id="s5" class="card">
+    <h2>五、e^x 导数推导的完整逻辑链</h2>
+
+    <h3>e 的两种等价定义</h3>
+    <div class="theorem">
+      <div class="thm-title">定义一（复利极限）</div>
+      <p class="math-block">e = lim<sub>n→∞</sub> (1 + 1/n)<sup>n</sup> = lim<sub>h→0</sub> (1 + h)<sup>1/h</sup></p>
+    </div>
+    <div class="theorem">
+      <div class="thm-title">定义二（导数定义——你要推导的目标）</div>
+      <p>e 是唯一满足下式的正数：<span class="math">lim<sub>h→0</sub> (e^h−1)/h = 1</span></p>
+      <p>这个定义说：<strong>指数函数 e^x 在 x=0 处的导数是 1。</strong></p>
+    </div>
+
+    <h3>从定义一到定义二的推导</h3>
+    <p>设 <span class="math">t = e^h − 1</span>，则 <span class="math">e^h = 1+t</span>，<span class="math">h→0</span> 时 <span class="math">t→0</span>。</p>
+    <p>两边取自然对数：<span class="math">h = ln(1+t)</span>。代入极限：</p>
+    <p class="math-block">lim<sub>h→0</sub> (e^h−1)/h = lim<sub>t→0</sub> t/ln(1+t) = lim<sub>t→0</sub> 1/ln[(1+t)<sup>1/t</sup>]</p>
+    <p>根据定义一：<span class="math">lim<sub>t→0</sub> (1+t)<sup>1/t</sup> = e</span>，所以极限 = <span class="math">1/ln e = 1</span>。</p>
+
+    <h3>完整逻辑链</h3>
+    <pre>定义：e = lim(1+1/n)^n  →  换元得 lim(e^h−1)/h = 1  →  (e^x)' = e^x</pre>
+
+    <div class="insight-box">
+      <div class="label">直觉视角</div>
+      <p>当 h 极小时，e^h ≈ 1+h（e 是"单位增长率下连续复利的极限"），所以 (e^h−1)/h ≈ (1+h−1)/h = 1。取极限后近似变精确。e 的本质就是：<strong>它是使得指数函数在 0 处的变化率恰好为 1 的唯一底数。</strong>e^x 的导数还是它自己——这是 e 被选中的"使命"。</p>
+    </div>
+  </section>
+
+  <!-- ===== Section 6 ===== -->
+  <section id="s6" class="card">
+    <h2>六、sin x 的推导：符号修正与极限拆分</h2>
+
+    <h3>正确的和角公式</h3>
+    <p class="math-block">sin(x+h) = sin x·cos h + cos x·sin h</p>
+    <p>注意第二项是 <strong>+ cos x·sin h</strong>，不是 −sin h·cos x。</p>
+
+    <h3>推导</h3>
+    <p class="math-block">sin(x+h) − sin x = sin x(cos h − 1) + cos x·sin h</p>
+    <p>除以 h 取极限：</p>
+    <p class="math-block">(sin x)' = sin x·lim<sub>h→0</sub>(cos h−1)/h + cos x·lim<sub>h→0</sub>(sin h)/h</p>
+
+    <p>两个关键极限：</p>
+    <ul>
+      <li><strong>极限一：</strong>lim<sub>h→0</sub> (sin h)/h = 1（几何夹逼可证）</li>
+      <li><strong>极限二：</strong>lim<sub>h→0</sub> (cos h−1)/h = 0（可化为 −(sin h)/h · sin h/(cos h+1) → −1·0/2 = 0）</li>
+    </ul>
+
+    <p>代入得：<span class="math">(sin x)' = sin x·0 + cos x·1 = cos x</span>。</p>
+  </section>
+
+  <!-- ===== Section 7 ===== -->
+  <section id="s7" class="card">
+    <h2>七、极限拆分的合法性：什么时候能"先算一部分"？</h2>
+
+    <h3>核心规则</h3>
+    <div class="key-point">
+      <strong>极限加法法则：</strong>若 lim A(h) 和 lim B(h) <strong>都存在且为有限数</strong>，则 lim[A+B] = lim A + lim B。
+    </div>
+
+    <h3>你担心的情况分析</h3>
+    <p>对第一项 sin x(cos h−1)/h 单独取极限得 0——这完全合法，因为该极限存在且为有限数（0）。对第二项 cos x·sin h/h 单独取极限得 cos x——同样合法。两项极限都存在且有限，和自然就是 0+cos x = cos x。</p>
+
+    <h3>什么时候这样做会出错？</h3>
+    <p>如果某项的极限<strong>不存在</strong>（或为无穷大），就不能先算完它再处理另一项。</p>
+    <p><strong>反例：</strong>lim<sub>x→0</sub>(1/x − 1/x)。如果"先对第一项取极限"得 ∞，然后继续算，就会出错。实际上两项先通分再取极限，结果是 0。这就是 ∞−∞ 不能拆的原因。</p>
+
+    <div class="insight-box">
+      <div class="label">进阶意识</div>
+      <p>你做的不是"随便把一个部分先变成 0"，而是：利用极限加法法则 → 拆成两个独立极限 → 分别算出 0 和 cos x → 相加。每一步条件都满足，完全合法。你能主动审视"拆开求极限的合法性"，说明你已经开始建立数学推导的"规则意识"了。</p>
+    </div>
+  </section>
+
+  <!-- ===== Section 8 ===== -->
+  <section id="s8" class="card">
+    <h2>八、极限计算：10 类常见错误速览</h2>
+
+    <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>#</th><th>类型</th><th>关键词</th><th>核心禁忌</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>四则运算拆分不当</td><td>∞−∞, 0×∞</td><td>只有在各项极限<strong>都存在且有限</strong>时才能拆开</td></tr>
+        <tr><td>2</td><td>部分代入/部分取极限</td><td>先算一部分</td><td>必须整体取极限，不能把趋向过程"提前"施加于局部</td></tr>
+        <tr><td>3</td><td>等价无穷小误用于加减</td><td>sinx ~ x</td><td>等价无穷小替换一般只对<strong>整体因子</strong>安全，加减法中易出错</td></tr>
+        <tr><td>4</td><td>洛必达条件不满足</td><td>不是0/0或∞/∞</td><td>分子分母必须同时趋向0或无穷；求导后极限必须存在（或无穷）</td></tr>
+        <tr><td>5</td><td>重要极限形式不对</td><td>1^∞ 误区</td><td>(1+□)^(1/□) 中的 □ 必须趋于 0，指数必须是倒数</td></tr>
+        <tr><td>6</td><td>忽略左右极限</td><td>|x|, 分段函数</td><td>x→x₀ 时，若函数含绝对值或分段定义，必须分左右</td></tr>
+        <tr><td>7</td><td>无穷小×有界函数拆开</td><td>sin(1/x) 震荡</td><td>极限拆开要求<strong>每一个因子极限都存在</strong>，震荡无极限不能拆</td></tr>
+        <tr><td>8</td><td>洛必达循环论证</td><td>sinx/x</td><td>某些极限的洛必达解法实际依赖该极限本身，需注意逻辑链</td></tr>
+        <tr><td>9</td><td>积分上限函数求导错误</td><td>微积分基本定理</td><td>上限是 x 的函数时必须链式法则，积分变量与自变量不可混淆</td></tr>
+        <tr><td>10</td><td>数列与函数极限混淆</td><td>n→∞, x→∞</td><td>n 默认为离散，不能直接洛必达</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- ===== Section 9 ===== -->
+  <section id="s9" class="card">
+    <h2>九、10 道极限找茬题</h2>
+    <p>每题给出了一种计算过程，先判断是否正确；如果错误，指出<strong>错在哪一步</strong>和<strong>为什么</strong>。</p>
+
+    <div class="prob-box"><div class="prob-num">题1</div>
+      <p>求 lim<sub>x→0</sub> (1/x − 1/sin x)</p>
+      <p><strong>错误解法：</strong>拆成 lim 1/x − lim 1/sin x = ∞−∞ = 0</p>
+      <p><span class="err-tag">错误</span> 拆分时两项都不存在（∞），不能直接相减。应先通分，再用洛必达或泰勒。结果为 0。</p>
+    </div>
+
+    <div class="prob-box"><div class="prob-num">题2</div>
+      <p>求 lim<sub>x→0</sub> (sin x − x)/x³</p>
+      <p><strong>错误解法：</strong>sinx~x，所以 sinx−x~0，极限为 0。</p>
+      <p><span class="err-tag">错误</span> 在加减法中直接对单项使用等价无穷小替换。正确用泰勒 sinx = x−x³/6+o(x³)，结果为 −1/6。也可用三次洛必达。</p>
+    </div>
+
+    <div class="prob-box"><div class="prob-num">题3</div>
+      <p>求 lim<sub>x→0</sub> x·sin(1/x)</p>
+      <p><strong>可疑解法：</strong>拆成 lim x · lim sin(1/x) = 0 × 不存在 = 0。结果对但过程对吗？</p>
+      <p><span class="err-tag">过程错误</span> 第二步拆开不合法，因为 lim sin(1/x) 不存在。正确做法：用<strong>无穷小乘有界函数</strong>，|x·sin(1/x)| ≤ |x| → 0，夹逼定理得 0。</p>
+    </div>
+
+    <div class="prob-box"><div class="prob-num">题4</div>
+      <p>求 lim<sub>x→∞</sub> (1+1/x)<sup>2x</sup></p>
+      <p><strong>错误解法：</strong>先取底数极限得 1，所以 1<sup>2x</sup>=1。</p>
+      <p><span class="err-tag">错误</span> 这是 1^∞ 型未定式，不能先取底数极限。正确：[(1+1/x)^x]² → e²。</p>
+    </div>
+
+    <div class="prob-box"><div class="prob-num">题5</div>
+      <p>求 lim<sub>x→∞</sub> x/(x+sin x)</p>
+      <p><strong>错误解法：</strong>洛必达得 1/(1+cos x)，该极限振荡不存在，所以原极限不存在。</p>
+      <p><span class="err-tag">错误</span> 洛必达要求求导后极限<strong>存在或为无穷</strong>才能推出原极限。求导后振荡不满足条件。正确做法：分子分母同除 x，得 1/(1+sin x/x)，sin x/x→0，极限为 1。</p>
+    </div>
+
+    <div class="prob-box"><div class="prob-num">题6</div>
+      <p>求 lim<sub>x→0</sub> (1+x)<sup>1/x</sup></p>
+      <p><strong>错误解法：</strong>1+x→1，所以 1^∞=1。</p>
+      <p><span class="err-tag">错误</span> 典型 1^∞ 型。正确利用重要极限：lim<sub>x→0</sub>(1+x)<sup>1/x</sup> = e。</p>
+    </div>
+
+    <div class="prob-box"><div class="prob-num">题7</div>
+      <p>求 lim<sub>x→0</sub> (tan x − sin x)/x³</p>
+      <p><strong>错误解法：</strong>tanx~x, sinx~x，所以 tanx−sinx~x−x=0，极限为 0。</p>
+      <p><span class="err-tag">错误</span> 同题2，加减法中误用等价无穷小。正确：tanx−sinx = tanx(1−cosx) ~ x·x²/2 = x³/2，结果 1/2。</p>
+    </div>
+
+    <div class="prob-box"><div class="prob-num">题8</div>
+      <p>求 lim<sub>x→0</sub> (e^x−1−x)/x²</p>
+      <p><strong>混合解法：</strong>洛必达一次后得 (e^x−1)/2x ~ x/2x = 1/2。这种等价替换是否允许？</p>
+      <p><span class="ok-tag">允许</span> 因为洛必达后 (e^x−1)/2x 是一个整体分式，等价替换发生在乘除因子中。本题结果正确，用来训练判断力——不是所有"看起来像"的替换都是错的。</p>
+    </div>
+
+    <div class="prob-box"><div class="prob-num">题9</div>
+      <p>求 lim<sub>x→0</sub> x/|x|</p>
+      <p><strong>错误解法：</strong>约掉绝对值，极限为 1。</p>
+      <p><span class="err-tag">错误</span> 绝对值不能随意约掉。x→0⁺ 时极限为 1，x→0⁻ 时极限为 −1，左右极限不等，<strong>极限不存在</strong>。</p>
+    </div>
+
+    <div class="prob-box"><div class="prob-num">题10</div>
+      <p>求 lim<sub>x→0</sub> ∫<sub>0</sub><sup>x</sup> sin t dt / x²</p>
+      <p><strong>常见错误：</strong>∫<sub>0</sub><sup>x</sup> sin t dt = −cos x（忘了代入下限 0）。</p>
+      <p><span class="err-tag">错误</span> 定积分不是不定积分。正确：∫<sub>0</sub><sup>x</sup> sin t dt = [−cos t]<sub>0</sub><sup>x</sup> = 1−cos x。然后原式 = lim(1−cos x)/x² = 1/2（洛必达或等价替换）。</p>
+    </div>
+
+    <div class="key-point">
+      <strong>拿到极限题的第一反应不是动手算，而是先判断：</strong>是什么型？拆分条件满足吗？等价能换吗？左右极限要分吗？
+    </div>
+  </section>
+
+  <!-- ===== Section 10 ===== -->
+  <section id="s10" class="card">
+    <h2>十、基本积分公式练习：8 道题</h2>
+
+    <h3>题目</h3>
+    <ol>
+      <li>∫ (3x² − 2/x + 1) dx</li>
+      <li>∫ (e^x + 2^x) dx</li>
+      <li>∫ (sin x + cos x) dx</li>
+      <li>∫ sec² x dx</li>
+      <li>∫ 1/(1+x²) dx</li>
+      <li>∫ 1/√(1−x²) dx</li>
+      <li>∫ tan x dx</li>
+      <li>∫ 1/(x²−4) dx</li>
+    </ol>
+
+    <h3>逐题详解</h3>
+
+    <h4>题1：∫ (3x² − 2/x + 1) dx</h4>
+    <ol class="step-list">
+      <li>分项：∫ 3x²dx − ∫ 2/x dx + ∫ 1dx</li>
+      <li>第一项：3·x³/3 = x³</li>
+      <li>第二项：2·ln|x|（<strong>注意绝对值</strong>——1/x 的积分是 ln|x|，因为负半轴也有定义）</li>
+      <li>第三项：x</li>
+    </ol>
+    <p class="math-block">结果：x³ − 2ln|x| + x + C</p>
+    <p><strong>检查：</strong>对结果求导，得 3x² − 2/x + 1，匹配。</p>
+
+    <h4>题2：∫ (e^x + 2^x) dx</h4>
+    <p class="math-block">e^x + 2^x/ln 2 + C</p>
+    <p><strong>口诀：</strong>e^x 积分不变；a^x 积分除以 ln a。易错：忘了除 ln 2。</p>
+
+    <h4>题3：∫ (sin x + cos x) dx</h4>
+    <p class="math-block">−cos x + sin x + C</p>
+
+    <h4>题4：∫ sec² x dx</h4>
+    <p class="math-block">tan x + C（因为 (tan x)' = sec² x）</p>
+
+    <h4>题5：∫ 1/(1+x²) dx</h4>
+    <p class="math-block">arctan x + C（因为 (arctan x)' = 1/(1+x²)）</p>
+
+    <h4>题6：∫ 1/√(1−x²) dx</h4>
+    <p class="math-block">arcsin x + C（因为 (arcsin x)' = 1/√(1−x²)）</p>
+
+    <h4>题7：∫ tan x dx —— 最需要拆解的一题</h4>
+    <ol class="step-list">
+      <li>写成 sin x/cos x</li>
+      <li>设 u = cos x，du = −sin x dx，即 sin x dx = −du</li>
+      <li>积分变为 −∫ 1/u du = −ln|u| + C</li>
+      <li>代回：−ln|cos x| + C = ln|sec x| + C</li>
+    </ol>
+    <p><strong>易错：</strong>忘了负号会写成 ln|cos x|（符号反）；忘了绝对值。</p>
+
+    <h4>题8：∫ 1/(x²−4) dx</h4>
+    <p>用部分分式：1/(x²−4) = 1/4(x−2) − 1/4(x+2)。积分得：</p>
+    <p class="math-block">(1/4)ln|x−2| − (1/4)ln|x+2| + C = (1/4)ln|(x−2)/(x+2)| + C</p>
+    <p><strong>通式：</strong>∫ 1/(x²−a²) dx = (1/2a) ln|(x−a)/(x+a)| + C，这里 a=2。</p>
+
+    <h3>公式速记表</h3>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>被积函数</th><th>积分结果</th><th>条件</th></tr></thead>
+      <tbody>
+        <tr><td>x^n</td><td>x^{n+1}/(n+1)</td><td>n ≠ −1</td></tr>
+        <tr><td>1/x</td><td>ln|x|</td><td></td></tr>
+        <tr><td>e^x</td><td>e^x</td><td></td></tr>
+        <tr><td>a^x</td><td>a^x/ln a</td><td>a&gt;0, a≠1</td></tr>
+        <tr><td>sin x</td><td>−cos x</td><td></td></tr>
+        <tr><td>cos x</td><td>sin x</td><td></td></tr>
+        <tr><td>sec² x</td><td>tan x</td><td></td></tr>
+        <tr><td>tan x</td><td>−ln|cos x|</td><td></td></tr>
+        <tr><td>1/(1+x²)</td><td>arctan x</td><td></td></tr>
+        <tr><td>1/√(1−x²)</td><td>arcsin x</td><td></td></tr>
+        <tr><td>1/(x²−a²)</td><td>(1/2a)ln|(x−a)/(x+a)|</td><td></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <div class="ornament">对话来源：与 DeepSeek 的求导、极限与积分学习讨论 · 2026 年 7 月</div>
+
+  <p style="text-align:center;margin-top:1.5rem;">
+    <a href="../index.html#blog" class="btn">← 返回小记列表</a>
+  </p>
+
+    </div><!-- .main-content -->
+  </div><!-- .page-layout -->
+
+</div>
+
+<footer>
+  豆花喵的小栈 · 像树木一样安静生长 · 每次新发现，都会种在这片小森林里
+</footer>
+
+<script>
+  (function () {
+    var links = document.querySelectorAll('.toc a');
+    var sections = [];
+    for (var i = 0; i < links.length; i++) {
+      var id = links[i].getAttribute('href').replace('#', '');
+      var el = document.getElementById(id);
+      if (el) sections.push({ link: links[i], section: el });
+    }
+    function onScroll() {
+      var scrollY = window.scrollY + 120;
+      var current = null;
+      for (var i = 0; i < sections.length; i++) {
+        if (sections[i].section.offsetTop <= scrollY) current = sections[i].link;
+      }
+      for (var j = 0; j < links.length; j++) links[j].classList.remove('active');
+      if (current) current.classList.add('active');
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>从微积分到测度：一次深度学习漫游 — 豆花喵的小栈</title>
+<style>
+  /* ===== 设计令牌（与主站一致） ===== */
+  :root {
+    --green:       #2E7D32;
+    --green-light: #4CAF50;
+    --green-pale:  #e8f5e9;
+    --blue:        #1976D2;
+    --blue-light:  #42A5F5;
+    --blue-pale:   #e3f2fd;
+    --purple:      #7B1FA2;
+    --purple-light:#AB47BC;
+    --purple-pale: #f3e5f5;
+    --orange:      #E65100;
+    --orange-light:#FF9800;
+    --orange-pale: #fff3e0;
+    --text:        #1e293b;
+    --text-muted:  #64748b;
+    --bg:          #f1f8e9;
+    --card-bg:     rgba(255,255,255,0.82);
+    --card-border: rgba(255,255,255,0.55);
+    --shadow-sm:   0 4px 16px rgba(0,0,0,0.06);
+    --shadow-md:   0 8px 32px rgba(0,0,0,0.09);
+    --shadow-lg:   0 12px 40px rgba(0,0,0,0.13);
+    --radius-sm:   12px;
+    --radius-md:   20px;
+    --radius-full: 50px;
+    --transition:  0.3s cubic-bezier(.4,0,.2,1);
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Segoe UI', 'PingFang SC', 'Noto Serif SC', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, var(--green-pale) 0%, var(--blue-pale) 40%, var(--purple-pale) 100%) fixed;
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    line-height: 1.85;
+    font-size: 1.05rem;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(255,255,200,0.22) 0%, transparent 55%),
+      radial-gradient(circle at 70% 60%, rgba(200,230,255,0.20) 0%, transparent 55%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ===== 双栏布局 ===== */
+  .page-layout {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+  }
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 6rem;
+  }
+  .main-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* ===== 顶部导航 ===== */
+  nav.top-bar {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 2.5rem;
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 0.7rem 2rem;
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 1rem;
+    z-index: 10;
+  }
+  nav.top-bar a {
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--green);
+    padding: 0.4rem 1.1rem;
+    border-radius: var(--radius-full);
+    transition: all var(--transition);
+    font-size: 0.95rem;
+  }
+  nav.top-bar a:hover {
+    background: var(--green);
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(46,125,50,0.35);
+  }
+  nav.top-bar a.back::before {
+    content: '← ';
+  }
+
+  /* ===== 文章头部 ===== */
+  .article-header {
+    margin-bottom: 2.5rem;
+  }
+  .article-header .date {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.5rem;
+  }
+  .article-header h1 {
+    font-size: 2.4rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--green) 0%, var(--blue) 60%, var(--purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1.35;
+  }
+  .article-header .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+  .tags {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .tag {
+    display: inline-block;
+    padding: 0.25rem 0.85rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--green-light);
+    letter-spacing: 0.03em;
+  }
+  .tag.blue   { background: var(--blue-light); }
+  .tag.purple { background: var(--purple-light); }
+  .tag.orange { background: var(--orange-light); }
+
+  /* ===== 卡片 ===== */
+  .card {
+    background: var(--card-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: var(--radius-md);
+    padding: 2rem;
+    margin-bottom: 1.8rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--card-border);
+    transition: transform var(--transition), box-shadow var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  .card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--green-light), var(--blue-light), var(--purple-light));
+    opacity: 0;
+    transition: opacity var(--transition);
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .card:hover::after { opacity: 1; }
+
+  /* ===== 排版 ===== */
+  h2 {
+    font-size: 1.7rem;
+    margin: 2rem 0 1rem;
+    color: var(--green);
+    padding-left: 1.2rem;
+    position: relative;
+    font-weight: 700;
+  }
+  h2::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0.15em; bottom: 0.15em;
+    width: 5px;
+    border-radius: 3px;
+    background: linear-gradient(180deg, var(--blue-light), var(--purple-light));
+  }
+  h3 {
+    margin: 1.5rem 0 0.7rem;
+    color: var(--blue);
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+  h4 {
+    margin: 1.2rem 0 0.5rem;
+    color: var(--purple);
+    font-size: 1.05rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  h4::before {
+    content: '';
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--purple-light);
+    border-radius: 2px;
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+
+  p { margin-bottom: 0.85rem; }
+
+  /* ===== 数学公式模拟（无 MathJax 时的降级方案） ===== */
+  .math {
+    font-family: 'Georgia', 'Times New Roman', 'STIX Two Math', serif;
+    font-style: italic;
+    color: #1a1a2e;
+    background: rgba(0,0,0,0.03);
+    padding: 0.1em 0.3em;
+    border-radius: 4px;
+  }
+  .math-block {
+    display: block;
+    text-align: center;
+    margin: 1.2rem 0;
+    padding: 0.8rem 1rem;
+    background: rgba(0,0,0,0.02);
+    border-radius: 8px;
+    font-family: 'Georgia', 'Times New Roman', 'STIX Two Math', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* ===== 按钮 ===== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--green), var(--green-light));
+    color: #fff;
+    padding: 0.6rem 1.6rem;
+    border-radius: var(--radius-full);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all var(--transition);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(46,125,50,0.2);
+  }
+  .btn::after {
+    content: '→';
+    transition: transform 0.2s;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46,125,50,0.35);
+  }
+  .btn:hover::after {
+    transform: translateX(3px);
+  }
+
+  /* ===== 信息框 ===== */
+  .insight-box {
+    background: linear-gradient(135deg, rgba(255,248,200,0.5), rgba(255,243,224,0.5));
+    padding: 1.2rem 1.5rem;
+    border-radius: var(--radius-sm);
+    border-left: 4px solid var(--orange-light);
+    margin: 1.2rem 0;
+    font-size: 0.95rem;
+  }
+  .insight-box .label {
+    font-weight: 700;
+    color: var(--orange);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .key-point {
+    background: rgba(46,125,50,0.06);
+    padding: 1rem 1.3rem;
+    border-radius: var(--radius-sm);
+    border-left: 4px solid var(--green-light);
+    margin: 1rem 0;
+    font-size: 0.95rem;
+  }
+  .key-point strong { color: var(--green); }
+
+  /* ===== 定理卡片 ===== */
+  .theorem {
+    background: linear-gradient(135deg, rgba(25,118,210,0.05), rgba(123,31,162,0.05));
+    border: 1px solid rgba(25,118,210,0.15);
+    border-radius: var(--radius-sm);
+    padding: 1.2rem 1.5rem;
+    margin: 1.2rem 0;
+  }
+  .theorem .thm-title {
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+
+  /* ===== 步骤列表 ===== */
+  .step-list {
+    list-style: none;
+    padding: 0;
+    counter-reset: step;
+  }
+  .step-list li {
+    counter-increment: step;
+    padding: 0.5rem 0 0.5rem 2.5rem;
+    position: relative;
+    line-height: 1.7;
+  }
+  .step-list li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0; top: 0.5rem;
+    width: 1.6rem; height: 1.6rem;
+    background: var(--green-light);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.6rem;
+  }
+
+  /* ===== 代码块 ===== */
+  .code-block {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 1rem 1.3rem;
+    border-radius: var(--radius-sm);
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.88rem;
+    overflow-x: auto;
+    margin: 0.8rem 0;
+    line-height: 1.6;
+    white-space: pre;
+  }
+
+  /* ===== 引用 ===== */
+  blockquote {
+    border-left: 4px solid var(--purple-light);
+    margin: 1rem 0;
+    padding: 0.6rem 1.2rem;
+    background: rgba(123,31,162,0.04);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  /* ===== 文末装饰 ===== */
+  .ornament {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 2rem 0 1rem;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    font-style: italic;
+  }
+  .ornament::before,
+  .ornament::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,0,0,0.1), transparent);
+  }
+
+  footer {
+    text-align: center;
+    padding: 2rem 1rem 2.5rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    position: relative;
+    z-index: 1;
+  }
+  footer::before {
+    content: '';
+    display: block;
+    width: 64px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--green-light), var(--blue-light), var(--purple-light));
+    margin: 0 auto 1rem;
+    border-radius: 1px;
+  }
+
+  /* ===== 目录（侧边栏内） ===== */
+  .toc {
+    background: var(--card-bg);
+    backdrop-filter: blur(8px);
+    border-radius: var(--radius-md);
+    padding: 1.3rem 1.2rem 1.1rem;
+    margin-bottom: 0;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--card-border);
+  }
+  .toc h3 {
+    margin-top: 0;
+    color: var(--green);
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding-bottom: 0.6rem;
+    margin-bottom: 0.7rem;
+    border-bottom: 1px solid rgba(46,125,50,0.1);
+  }
+  .toc h3::after {
+    content: '';
+    display: block;
+    width: 22px;
+    height: 1.5px;
+    background: var(--green-light);
+    margin-top: 0.45rem;
+    border-radius: 1px;
+  }
+  .toc ol {
+    padding-left: 0.6rem;
+    list-style: none;
+    border-left: 1px solid rgba(46,125,50,0.12);
+  }
+  .toc li {
+    padding: 0.3rem 0 0.3rem 0.1rem;
+    line-height: 1.4;
+    font-size: 0.86rem;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .toc li::before {
+    content: '';
+    display: block;
+    width: 7px;
+    height: 9px;
+    background: var(--green-light);
+    border-radius: 80% 0 80% 0;
+    transform: rotate(-40deg);
+    flex-shrink: 0;
+    opacity: 0.45;
+    transition: all var(--transition);
+    margin-top: 0.25rem;
+  }
+  .toc li:hover::before {
+    opacity: 0.85;
+    transform: rotate(-40deg) scale(1.2);
+    background: var(--green);
+  }
+  .toc li:has(a.active)::before {
+    opacity: 1;
+    background: var(--green);
+    box-shadow: 0 0 5px rgba(46,125,50,0.25);
+  }
+  .toc a {
+    color: var(--text);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .toc a:hover { color: var(--green); }
+  .toc a.active {
+    color: var(--green);
+    font-weight: 700;
+  }
+
+  @media (max-width: 860px) {
+    .page-layout {
+      flex-direction: column;
+    }
+    .sidebar {
+      width: 100%;
+      position: static;
+    }
+    .toc ol {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem 1rem;
+      padding-left: 0;
+      list-style: none;
+      border-left: none;
+    }
+    .toc li {
+      font-size: 0.85rem;
+    }
+    .toc li::before {
+      display: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .container { padding: 1rem 1rem 2rem; }
+    .article-header h1 { font-size: 1.7rem; }
+    h2 { font-size: 1.4rem; }
+    .card { padding: 1.2rem; }
+    nav.top-bar { gap: 0.3rem; padding: 0.5rem 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ===== 顶部导航 ===== -->
+  <nav class="top-bar">
+    <a href="../index.html#blog" class="back">返回小记</a>
+    <a href="../index.html">首页</a>
+  </nav>
+
+  <!-- ===== 文章头部 ===== -->
+  <header class="article-header">
+    <p class="date">2026 · 07 · 03</p>
+    <h1>从微积分到测度：一次深度学习漫游</h1>
+    <p class="subtitle">与 DeepSeek 的一场数学对话——从定理到反例，从公式到直觉，从抽象到隐喻</p>
+    <div class="tags">
+      <span class="tag">微积分</span>
+      <span class="tag blue">实分析</span>
+      <span class="tag purple">代数</span>
+      <span class="tag orange">学习方法</span>
+    </div>
+  </header>
+
+  <!-- ===== 双栏布局：侧边目录 + 正文 ===== -->
+  <div class="page-layout">
+
+    <aside class="sidebar">
+      <nav class="toc" aria-label="文章目录">
+        <h3>本文地图</h3>
+        <ol>
+          <li><a href="#s1">微积分基本定理：从定理到反例</a></li>
+          <li><a href="#s2">黎曼可积：条件全梳理</a></li>
+          <li><a href="#s3">勒贝格测度：当数学遇见直觉</a></li>
+          <li><a href="#s4">连续统：点如何质变成线</a></li>
+          <li><a href="#s5">多项式因式分解：长除法、综合除法与技巧库</a></li>
+          <li><a href="#s6">回文多项式与韦达定理反推</a></li>
+          <li><a href="#s7">定积分计算：三个常见"卡脚点"与修复</a></li>
+          <li><a href="#s8">学习与笔记：如何让灵感转化率更高</a></li>
+        </ol>
+      </nav>
+    </aside>
+
+    <div class="main-content">
+
+  <!-- ===== 正文 ===== -->
+
+  <!-- Section 1 -->
+  <section id="s1" class="card">
+    <h2>一、微积分基本定理：从定理到反例</h2>
+
+    <h3>1.1 定理本身</h3>
+    <p>微积分基本定理分为两部分：</p>
+
+    <div class="theorem">
+      <div class="thm-title">第一部分（原函数存在定理）</div>
+      <p>若 <span class="math">f</span> 在 <span class="math">[a,b]</span> 上连续，则积分上限函数</p>
+      <p class="math-block">Φ(x) = ∫<sub>a</sub><sup>x</sup> f(t) dt</p>
+      <p>可导，且 <span class="math">Φ'(x) = f(x)</span>。即：<strong>连续函数必有原函数。</strong></p>
+    </div>
+
+    <div class="theorem">
+      <div class="thm-title">第二部分（牛顿-莱布尼茨公式）</div>
+      <p>若 <span class="math">F' = f</span>，则</p>
+      <p class="math-block">∫<sub>a</sub><sup>b</sup> f(x) dx = F(b) − F(a)</p>
+    </div>
+
+    <h3>1.2 当连续性被破坏：两个反例</h3>
+
+    <h4>反例一：可去间断点——导数存在但不等于函数值</h4>
+    <p>设 <span class="math">f(t) = 1</span>（t≠0），<span class="math">f(0) = 0</span>。积分上限函数 Φ(x) = ∫<sub>0</sub><sup>x</sup> f(t)dt = x，故 Φ'(x) = 1 处处成立。但在 x=0 处：</p>
+    <p class="math-block">Φ'(0) = 1 ≠ 0 = f(0)</p>
+    <p class="key-point"><strong>结论：</strong>改变一个点不改变积分值，但破坏了导数与被积函数的相等关系。</p>
+
+    <h4>反例二：跳跃间断点——导数根本不存在</h4>
+    <p>设 <span class="math">f(t) = −1</span>（t&lt;0），<span class="math">f(0)=0</span>，<span class="math">f(t) = 1</span>（t&gt;0）。则 Φ(x) = |x|，在 x=0 处不可导（左右导数分别为 −1 和 1）。</p>
+    <p class="key-point"><strong>共同教训：</strong>"f 连续"是 Φ'(x) = f(x) 的关键条件。一旦连续性被破坏，结论就可能失效。</p>
+
+    <h3>1.3 反过来成立吗？</h3>
+    <p>若 Φ'(x) = f(x) 处处成立，f 是否必连续？<strong>不一定。</strong></p>
+    <p>经典反例：<span class="math">f(x) = sin(1/x)</span>（x≠0），<span class="math">f(0)=0</span>。f 在 0 处有震荡间断点，但可证 Φ'(0) = 0 = f(0)。</p>
+    <p class="key-point"><strong>f 连续是 Φ' = f 的充分条件，但不是必要条件。</strong>导函数即使不连续，也必定满足达布定理（介值性），而连续是一种更强的性质。</p>
+  </section>
+
+  <!-- Section 2 -->
+  <section id="s2" class="card">
+    <h2>二、黎曼可积：条件全梳理</h2>
+
+    <h3>2.1 充要条件（最本质的刻画）</h3>
+    <div class="theorem">
+      <div class="thm-title">勒贝格准则 (Lebesgue's Criterion)</div>
+      <p>f 在 [a,b] 上黎曼可积 ⇔ f 在 [a,b] 上有界，且其间断点集的勒贝格测度为 0（即"几乎处处连续"）。</p>
+    </div>
+
+    <h3>2.2 常用充分条件（由窄到宽）</h3>
+    <ol style="padding-left:1.5rem; line-height:2;">
+      <li><strong>连续函数</strong>：闭区间上的连续函数必可积。</li>
+      <li><strong>只有有限个间断点的有界函数</strong>：无论可去还是跳跃间断点。</li>
+      <li><strong>间断点可数且有界</strong>：如有理点处间断、无理点处连续的函数。</li>
+      <li><strong>单调函数</strong>：即使有无穷多个跳跃间断点，也必有界且间断点至多可数。</li>
+      <li><strong>几乎处处连续的有界函数</strong>：间断点集为零测度集（如康托集）。</li>
+    </ol>
+
+    <h3>2.3 可积函数类的包含关系</h3>
+    <p style="text-align:center; font-family: monospace; line-height:2.2; background:rgba(0,0,0,0.02); padding:1rem; border-radius:8px;">
+      连续函数 ⊂ 有限个间断点的有界函数 ⊂ 单调函数 ⊂ 间断点可数且有界 ⊂ 几乎处处连续的有界函数（充要条件）
+    </p>
+
+    <h3>2.4 积分上限函数的行为总结</h3>
+    <ul style="padding-left:1.5rem; line-height:2;">
+      <li>所有可积函数的 Φ(x) = ∫<sub>a</sub><sup>x</sup> f(t)dt <strong>都存在且连续</strong>。</li>
+      <li>在 f 的<strong>连续点</strong>处：Φ'(x) = f(x)。</li>
+      <li>在 f 的<strong>跳跃间断点</strong>处：Φ <strong>不可导</strong>（尖点）。</li>
+      <li>在 f 的<strong>可去间断点</strong>处：Φ 可导，但导数等于极限值而非 f 的值本身。</li>
+    </ul>
+  </section>
+
+  <!-- Section 3 -->
+  <section id="s3" class="card">
+    <h2>三、勒贝格测度：当数学遇见直觉</h2>
+
+    <h3>3.1 两种积分的根本区别</h3>
+    <div class="insight-box">
+      <div class="label">核心直觉</div>
+      <p><strong>黎曼积分"竖着切"定义域（x 轴），勒贝格积分"横着切"值域（y 轴）。</strong></p>
+    </div>
+    <p>黎曼积分：把 [a,b] 切成小区间 Δx<sub>i</sub>，算小矩形面积 f(x<sub>i</sub>*)Δx<sub>i</sub>。</p>
+    <p>勒贝格积分：把函数值范围切成小段 [y<sub>i</sub>, y<sub>i+1</sub>]，回头找使 f(x) 落在这个小段里的所有 x，看这些 x 构成的点集"有多大"（测度），再乘高度。</p>
+
+    <h3>3.2 测度到底是什么？</h3>
+    <p>测度就是"长度/面积/体积"概念的终极数学化推广。</p>
+    <ul style="padding-left:1.5rem; line-height:2;">
+      <li>[0,1] 的勒贝格测度 = 1（和长度一致）</li>
+      <li>单点集的测度 = 0</li>
+      <li>[0,1] 里所有有理数构成的集合，测度 = 0（可数个 0 加起来还是 0）</li>
+      <li>康托集，虽然不可数，但测度也 = 0</li>
+    </ul>
+
+    <h3>3.3 概率与测度：本质上是一个东西</h3>
+    <p>在几何概型里：<span class="math">概率 = 某个区域的测度 / 总区域的测度</span>。</p>
+    <p>一个点没有面积，所以丢芝麻丢到某个特定坐标点的概率是 0。<strong>概率为 0 的事件，未必是不可能事件。</strong>这正是测度论给概率论带来的概念升级。</p>
+
+    <h3>3.4 延伸思考：测度与人生的隐喻</h3>
+    <blockquote>
+      <p>"孤立的点对一维世界没有贡献。"——这几乎是勒贝格测度的一句完美格言。</p>
+    </blockquote>
+    <p>黎曼可积的条件告诉我们：只要"不连续"的部分总长度为零，就无碍大局。对应到学习上：</p>
+    <ul style="padding-left:1.5rem; line-height:2;">
+      <li><strong>偶尔的懈怠</strong>（有限个间断点）→ 不影响积分值。</li>
+      <li><strong>整段整段时间的放弃</strong>（正测度的间断）→ 对积分有可察觉的负面影响。</li>
+      <li><strong>真正起决定作用的</strong>，不是你每分每秒都在"动作"，而是你"不动作"的那些点究竟有多少。</li>
+    </ul>
+    <div class="insight-box">
+      <div class="label">数学安慰</div>
+      <p>人生的"积分"取决于你"持续努力"的区间长度。孤立的懈怠点（无论多少个，只要总长度为零）都改变不了最终的积分值。偶尔放空一下、失误一下，在数学上是完全可以被原谅的。</p>
+    </div>
+  </section>
+
+  <!-- Section 4 -->
+  <section id="s4" class="card">
+    <h2>四、连续统：点如何质变成线</h2>
+
+    <h3>4.1 两种不同的"无限"</h3>
+    <table style="width:100%; border-collapse:collapse; margin:1rem 0;">
+      <thead>
+        <tr style="border-bottom:2px solid var(--green-light);">
+          <th style="padding:0.6rem; text-align:left;">类型</th>
+          <th style="padding:0.6rem; text-align:left;">基数</th>
+          <th style="padding:0.6rem; text-align:left;">测度</th>
+          <th style="padding:0.6rem; text-align:left;">举例</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid rgba(0,0,0,0.06);">
+          <td style="padding:0.6rem;">可数无限</td>
+          <td style="padding:0.6rem;">ℵ₀</td>
+          <td style="padding:0.6rem;">0</td>
+          <td style="padding:0.6rem;">自然数、有理数</td>
+        </tr>
+        <tr>
+          <td style="padding:0.6rem;">连续统</td>
+          <td style="padding:0.6rem;">2<sup>ℵ₀</sup></td>
+          <td style="padding:0.6rem;">正数（如 1）</td>
+          <td style="padding:0.6rem;">实数、任意区间上的全体实数</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>4.2 关键命题</h3>
+    <div class="key-point">
+      <strong>不可数个零测度集合的并集，测度可以大于零。</strong>勒贝格测度只保证"可数可加性"，不保证"不可数可加性"。
+    </div>
+
+    <p>[0,1] 区间由不可数个测度为 0 的点组成，但总测度是 1。这不是靠点的"累积叠加"，而是靠连续统的"厚度"——一种本体论意义上的跃迁。</p>
+
+    <h3>4.3 "连续"与"无限"不可分割</h3>
+    <p>在标准数学里，只要一个集合是连续的（连通的），它内部就必须包含不可数无限个点。有限个点必然是离散的，可数无限个点依然"处处漏风"。</p>
+    <blockquote>
+      <p>一旦你真正触及了连续的质感，你就已经身在无限的洪流之中了。</p>
+    </blockquote>
+
+    <h3>4.4 学习的隐喻升级</h3>
+    <ul style="padding-left:1.5rem; line-height:2;">
+      <li><strong>有限次努力</strong>：测度为 0。</li>
+      <li><strong>可数无限次努力</strong>（每天固定整点学一小时）：次数无限，但总"长度"依然为 0——可数个点凑不出长度。</li>
+      <li><strong>连续统式的沉浸</strong>：无法拆解成孤立瞬间的"心流"，整个时间段被学习<strong>填满</strong>——这段区间就是连续统，拥有了正的"厚度"与贡献。</li>
+    </ul>
+  </section>
+
+  <!-- Section 5 -->
+  <section id="s5" class="card">
+    <h2>五、多项式因式分解：长除法、综合除法与技巧库</h2>
+
+    <h3>5.1 长除法的本质</h3>
+    <p>和整数竖式除法完全一样，只是把"位"换成了"次数"，把"10 的幂"换成了"x 的幂"。</p>
+    <p><strong>口诀：消最高次 → 乘回去 → 相减 → 降一位，循环。</strong></p>
+
+    <h3>5.2 缺项处理（最易错点）</h3>
+    <p>如 x⁴ − 16 除以 x − 2，必须<strong>补零占位</strong>：x⁴ + 0x³ + 0x² + 0x − 16，再进行长除。不补零会导致竖式错位，后面全错。</p>
+
+    <h3>5.3 综合除法——长除法的压缩版</h3>
+    <p>专门用于除式为 <span class="math">x − c</span> 的情况。只写系数，做"落、乘、加"循环。</p>
+
+    <div class="code-block">例：2x³ − 3x² − 3x + 2 除以 x + 1（即 c = −1）
+
+-1 │  2   -3   -3    2
+   │      -2    5   -2
+   └─────────────────
+     2   -5    2  │ 0
+
+结果：商式 2x² − 5x + 2，余数 0（整除）</div>
+
+    <p><strong>原理：</strong>本质是待定系数法的速算形式。每一步 b<sub>i−1</sub> = a<sub>i</sub> + c·b<sub>i</sub> 来自系数的恒等关系。</p>
+
+    <h3>5.4 因式分解武器库</h3>
+    <ol style="padding-left:1.5rem; line-height:2.2;">
+      <li><strong>分组分解</strong>：奇偶项分开、前两组+后两组、三一分组。</li>
+      <li><strong>添拆项法</strong>：如 x⁴ + 4 = x⁴ + 4x² + 4 − 4x² = (x²+2)² − (2x)²。</li>
+      <li><strong>待定系数法</strong>：已知形式时设出因式，对比系数解方程。</li>
+      <li><strong>换元法</strong>：看到重复结构就设 t = 某表达式。</li>
+      <li><strong>平方差/立方和差公式推广</strong>：aⁿ − bⁿ = (a−b)(aⁿ⁻¹ + aⁿ⁻²b + … + bⁿ⁻¹)。</li>
+    </ol>
+
+    <h3>5.5 两个核心定理</h3>
+    <div class="theorem">
+      <div class="thm-title">余数定理 (Remainder Theorem)</div>
+      <p>多项式 P(x) 除以 (x − c)，所得余数等于 P(c)。</p>
+      <p><strong>推论（因式定理）：</strong>若 P(c) = 0，则 (x−c) 是 P(x) 的因式。</p>
+    </div>
+
+    <div class="theorem">
+      <div class="thm-title">有理根定理 (Rational Root Theorem)</div>
+      <p>对整系数多项式 a<sub>n</sub>xⁿ + … + a₀，所有可能的有理根形式为：</p>
+      <p class="math-block">± (常数项 a₀ 的因子) / (首项系数 a<sub>n</sub> 的因子)</p>
+    </div>
+
+    <h3>5.6 解题路线图</h3>
+    <ol class="step-list">
+      <li>猜第一个有理根（有理根定理，首选 ±1, ±2 试）。</li>
+      <li>用综合除法或长除法降次。</li>
+      <li>对商式反复猜根、降次，直到剩二次或一次。</li>
+      <li>二次式用十字相乘或求根公式收尾。</li>
+    </ol>
+  </section>
+
+  <!-- Section 6 -->
+  <section id="s6" class="card">
+    <h2>六、回文多项式与韦达定理反推</h2>
+
+    <h3>6.1 回文多项式（倒数方程）</h3>
+    <p>系数<strong>左右对称</strong>的多项式。如 x⁴ + 2x³ + 3x² + 2x + 1（系数 1, 2, 3, 2, 1）。</p>
+    <p><strong>性质：</strong>若 r 是根，则 1/r 也是根。奇数次回文多项式必有根 x = −1 或 x = 1。</p>
+
+    <h3>6.2 y = x + 1/x 换元技巧</h3>
+    <p>对于偶数次回文多项式，除以 x<sup>n/2</sup>，两两配对，设 y = x + 1/x。</p>
+    <ul style="padding-left:1.5rem; line-height:2;">
+      <li>y² = x² + 2 + 1/x² → x² + 1/x² = y² − 2</li>
+      <li>y³ = x³ + 3x + 3/x + 1/x³ → 可递推更高次</li>
+    </ul>
+
+    <h3>6.3 韦达定理（三次为例）</h3>
+    <p>对 x³ + px² + qx + r，设根为 x₁, x₂, x₃：</p>
+    <p class="math-block">x₁ + x₂ + x₃ = −p<br>
+    x₁x₂ + x₂x₃ + x₃x₁ = q<br>
+    x₁x₂x₃ = −r</p>
+
+    <h3>6.4 等差数列根的因式分解</h3>
+    <p>设三根为 a−d, a, a+d，则：</p>
+    <ul style="padding-left:1.5rem; line-height:2;">
+      <li>3a = −p → a = −p/3</li>
+      <li>3a² − d² = q → d² = 3a² − q = p²/3 − q</li>
+      <li>d = ±√d²，两种取法给出<strong>完全相同的三个根</strong>（只是排列顺序不同）</li>
+    </ul>
+    <p class="key-point"><strong>为什么 d 的正负不影响结果？</strong>因为多项式系数只含 d²（平方消去了符号），且 d 取正或负只是左右两侧的根互换了名字。</p>
+  </section>
+
+  <!-- Section 7 -->
+  <section id="s7" class="card">
+    <h2>七、定积分计算：三个常见"卡脚点"与修复</h2>
+
+    <h3>7.1 问题一："对谁求导？"</h3>
+    <p><strong>积分变量是哑元，自变量在"边界"上。</strong>t 只在积分号内部跑一遍，跑完就消失。F 是 x 的函数，求导永远是对 x 求。</p>
+
+    <div class="key-point">
+      <strong>操作铁律：</strong>每次下笔前自问——被积函数里的变量是谁？（必是 t）积分上限/下限里有没有 x？上限是 x 还是 x 的函数？（决定要不要链式法则）
+    </div>
+
+    <p><strong>公式树：</strong></p>
+    <p class="math-block">d/dx ∫<sub>a</sub><sup>x</sup> f(t)dt = f(x)</p>
+    <p class="math-block">d/dx ∫<sub>a</sub><sup>g(x)</sup> f(t)dt = f(g(x))·g'(x)</p>
+    <p class="math-block">d/dx ∫<sub>h(x)</sub><sup>g(x)</sup> f(t)dt = f(g(x))g'(x) − f(h(x))h'(x)</p>
+
+    <h3>7.2 问题二：换元不换限</h3>
+    <p><strong>深层原因：</strong>换元不是"换字母"，而是<strong>构造了一个新函数（新映射）</strong>。原来的映射是 x ↦ f(g(x))g'(x)，新映射是 u ↦ f(u)。映射变了，定义域（上下限）当然要跟着变。</p>
+
+    <div class="insight-box">
+      <div class="label">关键认知</div>
+      <p><strong>哑变量替换</strong>（如 x→t）：映射不变，限不变。<br>
+      <strong>变量代换</strong>（如 u=g(x)）：映射从 x↦f(g(x))g'(x) 变成 u↦f(u)，<strong>映射变了，限必须变</strong>。</p>
+      <p>忘记换限 = 用新地图却用旧坐标找路。</p>
+    </div>
+
+    <p><strong>操作铁律：</strong>定积分换元必须三个动作同一行完成——换被积函数、换上下限、换积分变量。<strong>推荐全程新变量模式</strong>（模式 A）：换元后全部写成 u 的表达式，上下限换成 u 的限，直接算，算完就是数值，无需代回。</p>
+
+    <h3>7.3 问题三：基本公式不熟</h3>
+    <p>公式是<strong>肌肉记忆</strong>，不是大脑记忆。推荐每天 3 分钟"热身模式"：白纸左边默写求导公式，右边对应写积分公式，写不出就空着，3 分钟后翻书用红笔补全。连续一周，公式自然长在手上。</p>
+  </section>
+
+  <!-- Section 8 -->
+  <section id="s8" class="card">
+    <h2>八、学习与笔记：如何让灵感转化率更高</h2>
+
+    <h3>8.1 灵感的高耗散本质</h3>
+    <blockquote>
+      <p>哈伯法合成氨转化率 10–15%，葡萄糖氧化只有 ~34% 变成 ATP，其余为热。</p>
+      <p>灵感也一样——大部分像废热一样，当时滚烫，过后消散。这不是表达能力的问题，而是灵感本身就是一种低熵、高耗散的东西。</p>
+    </blockquote>
+
+    <h3>8.2 提高"转化率"的笔记框架</h3>
+
+    <h4>原则一：区分"灵感"和"总结"</h4>
+    <p>学的时候只允许自己留"痕迹"（一个词、一张图、一个箭头）。学完之后立刻花 5 分钟做一次"精炼"。</p>
+
+    <h4>原则二：三行以内铁律</h4>
+    <ol style="padding-left:1.5rem; line-height:2;">
+      <li><strong>这是什么？</strong>（一句话）</li>
+      <li><strong>它为什么对/为什么反直觉？</strong>（一句话）</li>
+      <li><strong>它让我联想到什么？</strong>（一句话）</li>
+    </ol>
+
+    <h4>原则三：用"未来的自己能否看懂"验收</h4>
+    <p>写完三行后问自己：如果我现在失忆了，只剩这句话，我能重新推导出那个灵感吗？如果不能，补一个"钩子"——一个具体例子、一个类比、一个操作步骤。</p>
+
+    <h4>原则四：允许非语言的钩子</h4>
+    <p>箭头图、游戏角色的技能名、数学符号序列、只有你懂的暗号——都可以。钩子的唯一要求是：<strong>它能重新触发你当时的思维状态。</strong></p>
+
+    <div class="insight-box">
+      <div class="label">一句话总结</div>
+      <p>接受灵感本来就会以热的形式散失（这是宇宙规律）。你要做的不是挽留全部热量，而是抓住那 34% 变成 ATP 的部分——精炼过的、可再点燃的、三行以内的钩子。</p>
+    </div>
+  </section>
+
+  <!-- ===== 文末 ===== -->
+  <div class="ornament">对话来源：与 DeepSeek 的微积分学习讨论 · 2026 年 7 月</div>
+
+  <p style="text-align:center; margin-top:1.5rem;">
+    <a href="../index.html#blog" style="display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg, var(--green), var(--green-light));color:#fff;padding:0.6rem 1.6rem;border-radius:var(--radius-full);text-decoration:none;font-weight:600;font-size:0.95rem;box-shadow:0 2px 8px rgba(46,125,50,0.2);transition:all var(--transition);">← 返回小记列表</a>
+  </p>
+
+    </div><!-- .main-content -->
+  </div><!-- .page-layout -->
+
+</div>
+
+<footer>
+  豆花喵的小栈 · 像树木一样安静生长 · 每次新发现，都会种在这片小森林里
+</footer>
+
+<script>
+  /* 滚动监听：高亮当前章节 */
+  (function () {
+    var links = document.querySelectorAll('.toc a');
+    var sections = [];
+    for (var i = 0; i < links.length; i++) {
+      var id = links[i].getAttribute('href').replace('#', '');
+      var el = document.getElementById(id);
+      if (el) sections.push({ link: links[i], section: el });
+    }
+
+    function onScroll() {
+      var scrollY = window.scrollY + 120;
+      var current = null;
+      for (var i = 0; i < sections.length; i++) {
+        if (sections[i].section.offsetTop <= scrollY) {
+          current = sections[i].link;
+        }
+      }
+      for (var j = 0; j < links.length; j++) {
+        links[j].classList.remove('active');
+      }
+      if (current) current.classList.add('active');
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+</script>
+
+</body>
+</html>

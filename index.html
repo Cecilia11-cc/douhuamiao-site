@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>豆花喵的小栈</title>
+<style>
+  /* ===== 设计令牌 ===== */
+  :root {
+    --green:       #2E7D32;
+    --green-light: #4CAF50;
+    --green-pale:  #e8f5e9;
+    --blue:        #1976D2;
+    --blue-light:  #42A5F5;
+    --blue-pale:   #e3f2fd;
+    --purple:      #7B1FA2;
+    --purple-light:#AB47BC;
+    --purple-pale: #f3e5f5;
+    --text:        #1e293b;
+    --text-muted:  #64748b;
+    --bg:          #f1f8e9;
+    --card-bg:     rgba(255,255,255,0.82);
+    --card-border: rgba(255,255,255,0.55);
+    --shadow-sm:   0 4px 16px rgba(0,0,0,0.06);
+    --shadow-md:   0 8px 32px rgba(0,0,0,0.09);
+    --shadow-lg:   0 12px 40px rgba(0,0,0,0.13);
+    --radius-sm:   12px;
+    --radius-md:   20px;
+    --radius-full: 50px;
+    --transition:  0.3s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ===== 重置 ===== */
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  /* ===== 全局 ===== */
+  body {
+    font-family: 'Segoe UI', 'PingFang SC', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, var(--green-pale) 0%, var(--blue-pale) 40%, var(--purple-pale) 100%) fixed;
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    line-height: 1.7;
+  }
+
+  /* ===== 柔和光晕背景 ===== */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(255,255,200,0.22) 0%, transparent 55%),
+      radial-gradient(circle at 70% 60%, rgba(200,230,255,0.20) 0%, transparent 55%);
+    pointer-events: none; z-index: 0;
+    animation: sunShift 20s infinite alternate ease-in-out;
+  }
+  @keyframes sunShift {
+    from { transform: translate(0,0); }
+    to   { transform: translate(3%, 2%); }
+  }
+
+  /* ===== 飘落花瓣（纯 CSS，不用 emoji） ===== */
+  .petal {
+    position: fixed;
+    z-index: 0;
+    pointer-events: none;
+    animation: fall linear infinite;
+  }
+  .petal::after {
+    content: '';
+    display: block;
+    width: 14px;
+    height: 18px;
+    border-radius: 50% 0 50% 50%;
+    background: var(--color, #e8b4c8);
+    opacity: 0.55;
+    transform: rotate(var(--rot, 0deg));
+  }
+  .petal:nth-child(1) { left: 8%;  --color:#f0c8d8; --rot:15deg;  animation-duration:14s; animation-delay: 0s; }
+  .petal:nth-child(2) { left:25%;  --color:#d4e8c8; --rot:-20deg; animation-duration:18s; animation-delay:-5s; }
+  .petal:nth-child(3) { left:48%;  --color:#c8d8f0; --rot:30deg;  animation-duration:12s; animation-delay:-10s;}
+  .petal:nth-child(4) { left:68%;  --color:#e0d0f0; --rot:-10deg; animation-duration:16s; animation-delay:-3s; }
+  .petal:nth-child(5) { left:85%;  --color:#f0e0c8; --rot:25deg;  animation-duration:20s; animation-delay:-8s; }
+  @keyframes fall {
+    0%   { transform: translateY(-10vh) translateX(0)    rotate(0deg);  opacity:0; }
+    8%   { opacity:0.55; }
+    92%  { opacity:0.55; }
+    100% { transform: translateY(110vh) translateX(30px) rotate(360deg); opacity:0; }
+  }
+
+  /* ===== 布局 ===== */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ===== 导航 ===== */
+  nav {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 0.7rem 2rem;
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 1rem;
+    z-index: 10;
+  }
+  nav a {
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--green);
+    padding: 0.4rem 1.1rem;
+    border-radius: var(--radius-full);
+    transition: all var(--transition);
+    font-size: 0.95rem;
+    position: relative;
+  }
+  nav a::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+    opacity: 0.5;
+    transition: all var(--transition);
+  }
+  nav a:hover,
+  nav a.active {
+    background: var(--green);
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(46,125,50,0.35);
+  }
+  nav a:hover::before,
+  nav a.active::before {
+    opacity: 1;
+    background: #fff;
+    box-shadow: 0 0 6px rgba(255,255,255,0.6);
+  }
+
+  /* ===== 页面切换 ===== */
+  .page {
+    display: none;
+    animation: fadeUp 0.45s ease;
+  }
+  .page.active { display: block; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== 标题 ===== */
+  h1 {
+    font-size: 2.8rem;
+    margin-bottom: 1.8rem;
+    background: linear-gradient(135deg, var(--green) 0%, var(--blue) 60%, var(--purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+  h2 {
+    font-size: 1.9rem;
+    margin: 1.6rem 0 1.2rem;
+    color: var(--green);
+    padding-left: 1.2rem;
+    position: relative;
+    font-weight: 700;
+  }
+  h2::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0.15em; bottom: 0.15em;
+    width: 5px;
+    border-radius: 3px;
+    background: linear-gradient(180deg, var(--blue-light), var(--purple-light));
+  }
+  h2::after {
+    content: '';
+    display: block;
+    width: 48px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--green-light), transparent);
+    margin-top: 0.35rem;
+    border-radius: 1px;
+  }
+  h3 {
+    margin: 0 0 0.5rem;
+    color: var(--blue);
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+  h4 {
+    margin: 1.2rem 0 0.5rem;
+    color: var(--purple);
+    font-size: 1.05rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  h4::before {
+    content: '';
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--purple-light);
+    border-radius: 2px;
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+
+  /* ===== 卡片 ===== */
+  .card {
+    background: var(--card-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: var(--radius-md);
+    padding: 1.8rem;
+    margin-bottom: 1.8rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--card-border);
+    transition: transform var(--transition), box-shadow var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  .card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--green-light), var(--blue-light), var(--purple-light));
+    opacity: 0;
+    transition: opacity var(--transition);
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+  .card:hover::after {
+    opacity: 1;
+  }
+
+  /* ===== 标签 ===== */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.8rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-right: 0.35rem;
+    vertical-align: middle;
+    color: #fff;
+    background: var(--green-light);
+    letter-spacing: 0.03em;
+  }
+  .tag.blue   { background: var(--blue-light); }
+  .tag.purple { background: var(--purple-light); }
+
+  /* ===== 按钮 ===== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--green), var(--green-light));
+    color: #fff;
+    padding: 0.6rem 1.6rem;
+    border-radius: var(--radius-full);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all var(--transition);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(46,125,50,0.2);
+  }
+  .btn::after {
+    content: '→';
+    transition: transform 0.2s;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46,125,50,0.35);
+  }
+  .btn:hover::after {
+    transform: translateX(3px);
+  }
+
+  /* ===== 博客列表 ===== */
+  .blog-list .article-item {
+    padding: 1.1rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    position: relative;
+    padding-left: 1.5rem;
+  }
+  .blog-list .article-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 1.5rem;
+    width: 8px; height: 8px;
+    border: 2px solid var(--green-light);
+    border-radius: 50%;
+    background: transparent;
+    transition: all var(--transition);
+  }
+  .blog-list .article-item:hover::before {
+    background: var(--green-light);
+    box-shadow: 0 0 0 4px rgba(76,175,80,0.15);
+  }
+  .blog-list .article-item:last-child { border-bottom: none; }
+  .date {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 0.2rem;
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    letter-spacing: 0.04em;
+  }
+
+  /* ===== 功能列表 ===== */
+  .feature-list {
+    list-style: none;
+    padding: 0;
+  }
+  .feature-list li {
+    padding: 0.35rem 0 0.35rem 1.6rem;
+    position: relative;
+    line-height: 1.7;
+  }
+  .feature-list li::before {
+    content: '❖';
+    position: absolute;
+    left: 0;
+    color: var(--purple-light);
+    font-size: 0.7rem;
+    top: 0.45rem;
+  }
+
+  /* ===== 技术栈 / 许可证标签 ===== */
+  .tech-stack,
+  .license-tag {
+    display: inline-block;
+    padding: 0.3rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.84rem;
+    margin: 0.4rem 0;
+  }
+  .tech-stack  {
+    background: rgba(123,31,162,0.08);
+    color: var(--purple);
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    border: 1px solid rgba(123,31,162,0.12);
+  }
+  .license-tag {
+    background: rgba(25,118,210,0.08);
+    color: var(--blue);
+    border: 1px solid rgba(25,118,210,0.12);
+  }
+
+  /* ===== 提示框 ===== */
+  .note {
+    background: rgba(255,248,200,0.4);
+    padding: 0.9rem 1.2rem;
+    border-radius: var(--radius-sm);
+    border-left: 4px solid var(--blue-light);
+    margin: 1rem 0;
+    font-size: 0.9rem;
+    line-height: 1.65;
+  }
+  .note strong {
+    color: var(--blue);
+  }
+
+  /* ===== 分隔装饰线 ===== */
+  .ornament {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 1.5rem 0;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    font-style: italic;
+  }
+  .ornament::before,
+  .ornament::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,0,0,0.1), transparent);
+  }
+
+  /* ===== 页脚 ===== */
+  footer {
+    text-align: center;
+    padding: 2rem 1rem 2.5rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    position: relative;
+    z-index: 1;
+  }
+  footer::before {
+    content: '';
+    display: block;
+    width: 64px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--green-light), var(--blue-light), var(--purple-light));
+    margin: 0 auto 1rem;
+    border-radius: 1px;
+  }
+
+  /* ===== 响应式 ===== */
+  @media (max-width: 600px) {
+    .container { padding: 1rem 1rem 0.5rem; }
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.5rem; }
+    nav {
+      gap: 0.3rem;
+      padding: 0.55rem 0.8rem;
+      border-radius: var(--radius-md);
+      top: 0.5rem;
+    }
+    nav a { font-size: 0.82rem; padding: 0.3rem 0.6rem; }
+    .card { padding: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 飘落花瓣 —— 纯 CSS 绘制，无 emoji -->
+<div class="petal" aria-hidden="true"></div>
+<div class="petal" aria-hidden="true"></div>
+<div class="petal" aria-hidden="true"></div>
+<div class="petal" aria-hidden="true"></div>
+<div class="petal" aria-hidden="true"></div>
+
+<div class="container">
+  <nav aria-label="主导航">
+    <a href="#home"     class="nav-link active" data-page="home"     aria-current="page">首页</a>
+    <a href="#blog"     class="nav-link"        data-page="blog">                     小记</a>
+    <a href="#projects" class="nav-link"        data-page="projects">                 手作</a>
+    <a href="garden.html"                                                              >枝叶</a>
+    <a href="#about"    class="nav-link"        data-page="about">                    关于我</a>
+  </nav>
+
+  <main>
+    <!-- ========== 首页 ========== -->
+    <section id="home" class="page active" aria-labelledby="home-title">
+      <h1 id="home-title">Hello, I'm 豆花喵</h1>
+
+      <div class="card">
+        <h3>豆花喵的小东西</h3>
+        <ul class="feature-list">
+          <li><strong>拼豆图纸生成器</strong> — 让像素艺术更简单</li>
+          <li><strong>PDF 转 TeX 小工具</strong> — 拯救我的排版强迫症</li>
+          <li><strong>科学小游戏网站</strong> — 把知识变成好玩的互动</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ========== 小记 ========== -->
+    <section id="blog" class="page" aria-labelledby="blog-title">
+      <h2 id="blog-title">学习与新发现</h2>
+      <div class="blog-list">
+        <article class="article-item">
+          <p class="date">2026 · 07 · 04</p>
+          <h3><a href="blog/analysis-level-practice.html" style="text-decoration:none; color:inherit;">数学分析级练习：概念、技巧与元思考</a></h3>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.2rem;">莱布尼茨公式三通道拆解、全微分视角、经典积分推导、极坐标的r、sin x的哲学隐喻</p>
+        </article>
+        <article class="article-item">
+          <p class="date">2026 · 07 · 04</p>
+          <h3><a href="blog/comprehensive-review-problems.html" style="text-decoration:none; color:inherit;">微积分综合复习题集</a></h3>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.2rem;">五大模块40+题：定积分应用、多元微分、二重积分、级数、微分方程——含详解与综合检测</p>
+        </article>
+        <article class="article-item">
+          <p class="date">2026 · 07 · 04</p>
+          <h3><a href="blog/double-integral-advanced-geometry.html" style="text-decoration:none; color:inherit;">二重积分进阶与空间几何生成</a></h3>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.2rem;">累次积分难度递增、X/Y型区域互换、对称简化；锥体vs抛物面；母线旋转与准线平移生成一切几何体</p>
+        </article>
+        <article class="article-item">
+          <p class="date">2026 · 07 · 04</p>
+          <h3><a href="blog/geometric-applications-moments.html" style="text-decoration:none; color:inherit;">定积分的几何应用、二重积分与矩</a></h3>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.2rem;">面积、旋转体体积（圆盘法/壳层法）、极坐标、二重积分；sin x与cos x的体积之争；矩的概念阶梯；七类错误地图</p>
+        </article>
+        <article class="article-item">
+          <p class="date">2026 · 07 · 04</p>
+          <h3><a href="blog/double-integral-principles.html" style="text-decoration:none; color:inherit;">二重积分：从原理到交换次序</a></h3>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.2rem;">积分限→不等式→画区域→交换次序的底层逻辑；被积函数是切片还是整体？z=1时为什么积分等于面积</p>
+        </article>
+        <article class="article-item">
+          <p class="date">2026 · 07 · 03</p>
+          <h3><a href="blog/calculus-learning-journey.html" style="text-decoration:none; color:inherit;">从微积分到测度：一次深度学习漫游</a></h3>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.2rem;">微积分基本定理、黎曼可积、勒贝格测度、多项式因式分解、定积分计算陷阱，以及与 DeepSeek 的一场数学对话</p>
+        </article>
+        <article class="article-item">
+          <p class="date">2026 · 07 · 03</p>
+          <h3><a href="blog/derivative-limit-integral.html" style="text-decoration:none; color:inherit;">求导、极限与积分：从定义到实战</a></h3>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.2rem;">从导数定义推导全部求导公式；极限计算10类常见错误与10道找茬题；基本积分公式专项练习</p>
+        </article>
+        <article class="article-item">
+          <p class="date">2026 · 07 · 03</p>
+          <h3><a href="blog/advanced-integration-review.html" style="text-decoration:none; color:inherit;">进阶积分：错题复盘与技巧内化</a></h3>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.2rem;">两轮强化训练覆盖凑微分、分部积分、三角换元、有理拆分；逐题详解 + 逐错复盘 + LIATE选u原则</p>
+        </article>
+        <article class="article-item">
+          <p class="date">2026 · 06 · 28</p>
+          <h3>怎么把 PDF 转成干净的 LaTeX？</h3>
+        </article>
+        <article class="article-item">
+          <p class="date">2026 · 06 · 20</p>
+          <h3>拼豆与像素艺术的数字魔法</h3>
+        </article>
+      </div>
+      <div class="ornament">每次新发现，都会种在这片小森林里</div>
+    </section>
+
+    <!-- ========== 手作 ========== -->
+    <section id="projects" class="page" aria-labelledby="projects-title">
+      <h2 id="projects-title">我的手作项目</h2>
+
+      <!-- 科学小游戏 -->
+      <article class="card">
+        <h3>"让人'啊'一声的科学问题" 闯关小游戏 <span class="tag purple">游戏</span><span class="tag">教育</span></h3>
+        <p>一个面向小学中高年级的科学思维教育互动网站，用"看到奇怪现象 → 追问为什么"的方式，培养好奇心与科学探究精神。</p>
+
+        <h4>双模式体验</h4>
+        <ul class="feature-list">
+          <li><strong>游客端</strong> — 无需密码，直接闯关答题，体验四种问题类型的思维挑战</li>
+          <li><strong>教师演示端</strong> — 输入密码进入，逐步揭示问题背景、解题思路和完整答案，适合课堂教学演示</li>
+        </ul>
+
+        <h4>四道关卡</h4>
+        <ul class="feature-list">
+          <li><strong>情境问题</strong> — 生活中的奇怪现象：费曼的水杯取硬币、一只手喝倒扣水杯的水……从"这怎么可能？！"出发，感受观察现象 → 追问本质的探究过程</li>
+          <li><strong>语言问题</strong> — 文字的奥秘：标点符号谜题、语序差异、一词多义，体会语言表达的精确性与丰富性，原来科学也需要"会说话"</li>
+          <li><strong>策略问题</strong> — 量水与分药：5L 和 3L 水壶量出 4L 水的互动操作谜题，在多种方案中寻找最优解。教师端还有经典分药难题的三步拆解，让孩子体验"思考如何思考"</li>
+          <li><strong>逻辑问题</strong> — 骑士与无赖：两条路、两个人、一个关键问题。通过角色扮演和表格分析，破解逻辑谜题，感受演绎推理的力量</li>
+        </ul>
+
+        <h4>设计特色</h4>
+        <ul class="feature-list">
+          <li>仙桃田园风格 Canvas 动态背景：远山、桃树、花瓣飘落</li>
+          <li>童趣化卡片界面，彩虹渐变装饰，适合小学生使用</li>
+          <li>响应式布局，适配电脑、平板和手机</li>
+        </ul>
+
+        <h4>内容来源与致谢</h4>
+        <p style="font-size:0.9rem;">本游戏的问题设计，部分改编与参考自：</p>
+        <ul class="feature-list" style="font-size:0.9rem;">
+          <li>本人"三下乡"支教磨课期间制作的教学 PPT</li>
+          <li>《浴缸里的惊叹：256 道让你恍然大悟的趣题》（顾森 著）</li>
+        </ul>
+        <p style="font-size:0.9rem;">在此对顾森老师表达诚挚的感谢。书中的精彩趣题为本游戏提供了核心的思维训练框架与灵感。</p>
+
+        <p><span class="license-tag">CC BY-SA 4.0</span></p>
+
+        <div style="margin-top:1rem;">
+          <a href="https://g8cdzx23d8.coze.site" class="btn" target="_blank" rel="noopener">开始游戏</a>
+        </div>
+      </article>
+
+      <!-- 拼豆图纸生成器 -->
+      <article class="card">
+        <h3>拼豆图纸生成器 <span class="tag">前端</span><span class="tag blue">创意</span></h3>
+        <p>
+          大学美育课要交手工作品，我没什么好手艺，打算拼豆。但碰上了比赛，时间紧，想请人帮忙，结果一问——拼豆设计稿要 50 块钱。算了。<br>
+          刚好我的 Matlab 又坏了，干脆把 slandarer 大佬的 Matlab 拼豆图纸生成代码改成了 Python 版。
+        </p>
+        <p>现在，把任意图片一键转换为拼豆图纸，内置 Mard 221 色标准色卡，自动限制颜色数量，输出带色号和网格的像素对照图，非常适合手工拼豆制作参考。</p>
+
+        <h4>功能亮点</h4>
+        <ul class="feature-list">
+          <li>支持任意尺寸的 JPG / PNG 图片，自动居中裁剪为正方形</li>
+          <li>内置 Mard 拼豆官方 221 色卡，颜色还原度高</li>
+          <li>可自定义像素尺寸（默认 50×50）和最大使用颜色数</li>
+          <li>输出高清图纸，包含：带网格和坐标的像素图、每个像素块上标注的色号、右侧图例（色号、颜色块和所需豆子数量）</li>
+          <li>纯 Python 实现，无需额外软件</li>
+        </ul>
+
+        <p><span class="tech-stack">Python 3 · NumPy · Matplotlib · Pillow</span></p>
+
+        <h4>灵感与致谢</h4>
+        <p style="font-size:0.9rem;">本项目的核心图像转换算法思路，受到了以下优秀作品的启发：</p>
+        <ul class="feature-list" style="font-size:0.9rem;">
+          <li>原作者：MATLAB-pairplot（GitHub）</li>
+          <li>微信公众号：slandarer 随笔</li>
+          <li>文章：《MATLAB | 如何使用 MATLAB 生成拼豆图纸》（2025-11-11）</li>
+        </ul>
+        <p style="font-size:0.9rem;">我重新用 Python 独立实现了拼豆图纸生成流程，并在 AI 辅助下进行了大量重构和功能扩展。颜色数据来源于公开的拼豆色库，本人独立整理并收录了 221 种颜色。</p>
+        <p style="font-size:0.85rem; color:var(--text-muted);">原始 Matlab 代码的版权归原作者所有。本项目为个人学习、重构与创作实践的衍生作品，代码权利保留。如原作者认为有不妥之处，欢迎随时联系我，我会立刻配合调整。</p>
+
+        <div style="margin-top:1rem;">
+          <a href="https://github.com/Cecilia11-cc/perler-bead-generator" class="btn" target="_blank" rel="noopener">GitHub 仓库</a>
+        </div>
+      </article>
+
+      <!-- PDF 转 TeX -->
+      <article class="card">
+        <h3>PDF → LaTeX 转换工具 <small style="font-weight:400;color:var(--text-muted);">via DeepSeek</small> <span class="tag blue">Python</span><span class="tag purple">工具</span></h3>
+        <p>
+          打比赛的时候我负责写论文，需要根据比赛模板来设计论文框架。可我还是 LaTeX 新手，对着模板发愁——忽然想到，能不能用 API 扫描模板，让模型帮我理解结构？
+        </p>
+        <p>
+          结果真的成了。虽然字体、表格、图片的处理还很粗糙，但这个脚本已经能帮我把一篇 PDF 论文自动转成结构清晰的 LaTeX 草稿，省下了大量从零搭建框架的时间。
+        </p>
+        <p>一个 Python 脚本，调用 DeepSeek 大模型，将中文数学建模论文 PDF 自动转换为结构清晰的 LaTeX 文档。</p>
+
+        <h4>能做什么</h4>
+        <ul class="feature-list">
+          <li>提取 PDF 中的全部文字（支持多页）</li>
+          <li>自动生成符合中文排版习惯的 LaTeX 文件（ctexart）</li>
+          <li>将原文中的公式转为 LaTeX 数学环境</li>
+          <li>表格转为三线表（booktabs）</li>
+          <li>保留图片、参考文献的占位符</li>
+          <li>本地运行，你的 PDF 不会上传到任何地方（仅将提取的文字发送给 DeepSeek API）</li>
+        </ul>
+
+        <div class="note">
+          <strong>已知限制（使用前必读）</strong><br>
+          本项目是一个辅助工具，并非完美的一键转换方案。表格会被提取为纯文字需手动核对；图片转为占位符需手动导出插入；字体使用 ctexart 默认字体与原文档有差异。建议将输出视为"粗排草稿"，在此基础上手动精修，远比从零写起高效得多。
+        </div>
+
+        <p><span class="tech-stack">pdfplumber · openai · python-dotenv</span></p>
+
+        <p><span class="license-tag">MIT License</span></p>
+
+        <div style="margin-top:1rem;">
+          <a href="https://github.com/Cecilia11-cc/pdf2latex-via-deepseek" class="btn" target="_blank" rel="noopener">GitHub 仓库</a>
+        </div>
+      </article>
+
+      <div class="ornament">更多想法正在从草稿纸里发芽……</div>
+    </section>
+
+    <!-- ========== 关于我 ========== -->
+    <section id="about" class="page" aria-labelledby="about-title">
+      <h2 id="about-title">关于豆花喵</h2>
+      <div class="card">
+        <p>我是<strong>豆花喵</strong>，一个喜欢编程、设计和创造的女生。</p>
+        <p>喜欢夏天。</p>
+        <p>喜欢看恐怖电影，喜欢玩游戏。</p>
+      </div>
+      <p style="margin-top:1.2rem; color:var(--text-muted); font-style:italic;">想交流的话，在这里放你的邮箱或社交链接吧~</p>
+    </section>
+  </main>
+</div>
+
+<footer>
+  豆花喵的小栈 · 像树木一样安静生长 · 绿 / 蓝 / 紫
+</footer>
+
+<script>
+  (function () {
+    var pages    = document.querySelectorAll('.page');
+    var navLinks = document.querySelectorAll('.nav-link');
+
+    function showPage(id) {
+      for (var i = 0; i < pages.length; i++) {
+        pages[i].classList.remove('active');
+      }
+      for (var j = 0; j < navLinks.length; j++) {
+        navLinks[j].classList.remove('active');
+        navLinks[j].removeAttribute('aria-current');
+      }
+      var page = document.getElementById(id);
+      var link = document.querySelector('[data-page="' + id + '"]');
+      if (page) page.classList.add('active');
+      if (link) {
+        link.classList.add('active');
+        link.setAttribute('aria-current', 'page');
+      }
+    }
+
+    for (var k = 0; k < navLinks.length; k++) {
+      navLinks[k].addEventListener('click', function (e) {
+        e.preventDefault();
+        var id = this.dataset.page;
+        showPage(id);
+        history.pushState(null, '', '#' + id);
+      });
+    }
+
+    window.addEventListener('popstate', function () {
+      showPage(getHashId());
+    });
+
+    function getHashId() {
+      var hash = window.location.hash.replace('#', '');
+      return document.getElementById(hash) ? hash : 'home';
+    }
+
+    showPage(getHashId());
+  })();
+</script>
+
+</body>
+</html>
