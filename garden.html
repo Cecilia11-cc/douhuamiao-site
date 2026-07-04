@@ -47,52 +47,34 @@
   .page-header .sub{color:var(--text-muted);font-style:italic;margin-top:0.3rem;font-size:0.98rem}
   .page-header .updated{display:inline-block;margin-top:0.6rem;font-size:0.8rem;color:var(--text-muted);background:var(--card-bg);padding:0.25rem 0.9rem;border-radius:var(--radius-full);border:1px solid var(--card-border);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 
-  /* ===== 树 ===== */
-  .tree-stage{position:relative;height:200px;margin:0 auto 1.2rem;max-width:700px;overflow:visible}
-  .trunk{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:16px;height:110px;background:linear-gradient(180deg,var(--bark-light) 0%,var(--bark) 50%,#5d4a3a 100%);border-radius:8px 8px 3px 3px;z-index:1}
-  .trunk::before{content:'';position:absolute;left:-6px;top:30px;width:10px;height:50px;background:linear-gradient(180deg,rgba(141,123,106,0.5),transparent);border-radius:5px;opacity:0.5}
-  .trunk::after{content:'';position:absolute;bottom:-10px;left:-16px;width:48px;height:20px;background:radial-gradient(ellipse at center,rgba(109,92,75,0.35) 0%,transparent 70%);border-radius:50%}
-
-  .canopy{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:380px;height:150px;z-index:0}
-  .canopy-layer{position:absolute;border-radius:50%}
-  .canopy-layer.c1{inset:10px 40px 20px 30px;background:radial-gradient(ellipse at 45% 55%,rgba(129,199,132,0.32) 0%,transparent 60%)}
-  .canopy-layer.c2{inset:0 20px 20px 60px;background:radial-gradient(ellipse at 55% 45%,rgba(165,214,167,0.38) 0%,transparent 55%)}
-  .canopy-layer.c3{inset:5px 50px 30px 20px;background:radial-gradient(ellipse at 40% 40%,rgba(200,230,201,0.40) 0%,transparent 65%)}
-  .canopy-layer.c4{inset:15px 35px 35px 50px;background:radial-gradient(ellipse at 50% 65%,rgba(102,187,106,0.28) 0%,transparent 50%)}
-
-  .twig{position:absolute;z-index:0;border-radius:1px}
-  .twig::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(129,150,110,0.55),transparent);border-radius:1px}
-  .twig.t1{top:62px;left:22%;width:105px;height:2px;transform:rotate(-14deg)}
-  .twig.t2{top:56px;right:24%;width:90px;height:2px;transform:rotate(12deg)}
-  .twig.t3{top:98px;left:18%;width:120px;height:1.5px;transform:rotate(-20deg)}
-  .twig.t4{top:92px;right:20%;width:110px;height:1.5px;transform:rotate(16deg)}
-  .twig.t5{top:125px;left:28%;width:85px;height:1.5px;transform:rotate(-10deg)}
-  .twig.t6{top:120px;right:28%;width:95px;height:1.5px;transform:rotate(10deg)}
-
+  /* ===== 树 (SVG) ===== */
+  .tree-stage{position:relative;height:260px;margin:0 auto 0.5rem;max-width:700px;overflow:visible}
+  .tree-stage svg{width:100%;height:100%}
+  /* 挂在 SVG 树枝上的 CSS 叶片（带动画） */
   .hanging-leaf{position:absolute;z-index:2;transition:all 0.5s ease;cursor:default}
   .hanging-leaf::after{content:'';display:block;border-radius:80% 0 80% 0}
-  .hanging-leaf:hover{transform:scale(1.2)}
+  .hanging-leaf:hover{transform:scale(1.25)}
   .hanging-leaf.bud{width:11px;height:14px}
   .hanging-leaf.bud::after{width:11px;height:14px;background:var(--leaf-bud);transform:rotate(-35deg);animation:budSway 4.5s ease-in-out infinite}
   .hanging-leaf.dark{width:15px;height:19px}
   .hanging-leaf.dark::after{width:15px;height:19px;background:var(--leaf-dark);transform:rotate(-40deg);animation:darkSway 5.5s ease-in-out infinite}
-  .hanging-leaf.yellow-leaf{width:13px;height:16px}
-  .hanging-leaf.yellow-leaf::after{width:13px;height:16px;background:var(--leaf-yellow);transform:rotate(-38deg);animation:yellowSway 4s ease-in-out infinite}
+  .hanging-leaf.yel{width:13px;height:16px}
+  .hanging-leaf.yel::after{width:13px;height:16px;background:var(--leaf-yellow);transform:rotate(-38deg);animation:yellowSway 4s ease-in-out infinite}
   @keyframes budSway{0%,100%{transform:rotate(-35deg)}50%{transform:rotate(-29deg)}}
   @keyframes darkSway{0%,100%{transform:rotate(-40deg)}50%{transform:rotate(-33deg)}}
   @keyframes yellowSway{0%,100%{transform:rotate(-38deg)}50%{transform:rotate(-45deg)}}
-
+  /* 落叶 */
   .falling-leaf{position:absolute;z-index:2;pointer-events:none;animation:leafFall 7s ease-in infinite}
   .falling-leaf::after{content:'';display:block;width:13px;height:17px;border-radius:80% 0 80% 0;background:var(--leaf-fall);transform:rotate(-45deg)}
-  .falling-leaf.f1{left:40%;top:-8px;animation-delay:0s;animation-duration:7s}
-  .falling-leaf.f2{left:56%;top:-22px;animation-delay:-2.5s;animation-duration:7.5s}
-  .falling-leaf.f3{left:48%;top:-35px;animation-delay:-4.8s;animation-duration:6.5s}
+  .falling-leaf.f1{left:38%;top:10px;animation-delay:0s;animation-duration:7s}
+  .falling-leaf.f2{left:55%;top:-5px;animation-delay:-2.5s;animation-duration:7.5s}
+  .falling-leaf.f3{left:47%;top:-18px;animation-delay:-4.8s;animation-duration:6.5s}
   @keyframes leafFall{
-    0%{transform:translateY(0) translateX(0) rotate(0deg);opacity:0.65}
-    25%{transform:translateY(45px) translateX(22px) rotate(70deg);opacity:0.45}
-    55%{transform:translateY(100px) translateX(-18px) rotate(190deg);opacity:0.3}
-    85%{transform:translateY(155px) translateX(8px) rotate(300deg);opacity:0.1}
-    100%{transform:translateY(200px) translateX(-5px) rotate(400deg);opacity:0}
+    0%{transform:translateY(0) translateX(0) rotate(0deg);opacity:0.6}
+    25%{transform:translateY(50px) translateX(24px) rotate(70deg);opacity:0.4}
+    55%{transform:translateY(120px) translateX(-20px) rotate(190deg);opacity:0.25}
+    85%{transform:translateY(190px) translateX(10px) rotate(300deg);opacity:0.08}
+    100%{transform:translateY(260px) translateX(-8px) rotate(400deg);opacity:0}
   }
 
   /* ===== 图例 ===== */
@@ -170,10 +152,7 @@
   .katex-display{overflow-x:auto;overflow-y:hidden;padding:0.3rem 0}
 
   @media(max-width:700px){
-    .tree-stage{height:155px}
-    .canopy{width:280px;height:120px}
-    .twig.t1{left:6%}.twig.t3{left:2%}.twig.t5{left:10%}
-    .twig.t2{right:8%}.twig.t4{right:4%}.twig.t6{right:10%}
+    .tree-stage{height:200px}
     .leaf-grid{grid-template-columns:1fr}
     .page-header h1{font-size:2.2rem}
     .legend{gap:0.7rem;font-size:0.75rem}
@@ -194,33 +173,91 @@
     <span class="updated" id="updatedDate">最近浇水：2026-07-04</span>
   </header>
 
-  <!-- 树身 -->
+  <!-- 树身 (SVG) -->
   <div class="tree-stage">
-    <div class="canopy">
-      <div class="canopy-layer c1"></div>
-      <div class="canopy-layer c2"></div>
-      <div class="canopy-layer c3"></div>
-      <div class="canopy-layer c4"></div>
-    </div>
-    <div class="trunk"></div>
-    <div class="twig t1"></div><div class="twig t2"></div>
-    <div class="twig t3"></div><div class="twig t4"></div>
-    <div class="twig t5"></div><div class="twig t6"></div>
-    <!-- 嫩绿小叶 -->
-    <div class="hanging-leaf bud" style="top:51px;left:27%"></div>
-    <div class="hanging-leaf bud" style="top:56px;right:26%"></div>
-    <div class="hanging-leaf bud" style="top:118px;left:30%"></div>
-    <!-- 深绿大叶 -->
-    <div class="hanging-leaf dark" style="top:44px;left:37%"></div>
-    <div class="hanging-leaf dark" style="top:48px;right:35%"></div>
-    <div class="hanging-leaf dark" style="top:86px;left:16%"></div>
-    <div class="hanging-leaf dark" style="top:82px;right:18%"></div>
-    <div class="hanging-leaf dark" style="top:112px;right:30%"></div>
-    <div class="hanging-leaf dark" style="top:105px;left:24%"></div>
-    <!-- 黄叶 -->
-    <div class="hanging-leaf yellow-leaf" style="top:90px;left:35%"></div>
-    <div class="hanging-leaf yellow-leaf" style="top:100px;right:22%"></div>
-    <!-- 落叶 -->
+    <svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- 树冠光斑滤镜 -->
+        <filter id="canopyBlur"><feGaussianBlur stdDeviation="1.5"/></filter>
+        <filter id="canopyBlur2"><feGaussianBlur stdDeviation="2.5"/></filter>
+        <!-- 树冠渐变 -->
+        <radialGradient id="cg1" cx="40%" cy="50%"><stop offset="0%" stop-color="#81c784" stop-opacity="0.50"/><stop offset="100%" stop-color="#81c784" stop-opacity="0"/></radialGradient>
+        <radialGradient id="cg2" cx="55%" cy="45%"><stop offset="0%" stop-color="#a5d6a7" stop-opacity="0.55"/><stop offset="100%" stop-color="#a5d6a7" stop-opacity="0"/></radialGradient>
+        <radialGradient id="cg3" cx="45%" cy="40%"><stop offset="0%" stop-color="#c8e6c9" stop-opacity="0.45"/><stop offset="100%" stop-color="#c8e6c9" stop-opacity="0"/></radialGradient>
+        <radialGradient id="cg4" cx="50%" cy="55%"><stop offset="0%" stop-color="#66bb6a" stop-opacity="0.40"/><stop offset="100%" stop-color="#66bb6a" stop-opacity="0"/></radialGradient>
+        <radialGradient id="cg5" cx="35%" cy="60%"><stop offset="0%" stop-color="#a5d6a7" stop-opacity="0.35"/><stop offset="100%" stop-color="#a5d6a7" stop-opacity="0"/></radialGradient>
+        <radialGradient id="cg6" cx="60%" cy="48%"><stop offset="0%" stop-color="#c8e6c9" stop-opacity="0.40"/><stop offset="100%" stop-color="#c8e6c9" stop-opacity="0"/></radialGradient>
+        <!-- 树干渐变 -->
+        <linearGradient id="bark" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#6d5c4b"/><stop offset="40%" stop-color="#8d7b6a"/><stop offset="100%" stop-color="#5d4a3a"/>
+        </linearGradient>
+      </defs>
+
+      <!-- 树冠：多层椭圆叠加 -->
+      <ellipse cx="350" cy="85" rx="175" ry="70" fill="url(#cg3)" filter="url(#canopyBlur2)"/>
+      <ellipse cx="280" cy="70" rx="120" ry="60" fill="url(#cg1)" filter="url(#canopyBlur)"/>
+      <ellipse cx="420" cy="65" rx="130" ry="55" fill="url(#cg2)" filter="url(#canopyBlur)"/>
+      <ellipse cx="310" cy="110" rx="110" ry="50" fill="url(#cg4)" filter="url(#canopyBlur)"/>
+      <ellipse cx="400" cy="100" rx="105" ry="45" fill="url(#cg5)" filter="url(#canopyBlur)"/>
+      <ellipse cx="350" cy="55" rx="95" ry="45" fill="url(#cg6)" filter="url(#canopyBlur)"/>
+
+      <!-- 树干 -->
+      <path d="M342 250 Q340 190 344 150 Q346 130 345 110 L355 110 Q354 130 356 150 Q360 190 358 250 Z" fill="url(#bark)"/>
+      <!-- 树干纹理 -->
+      <path d="M347 240 Q348 180 349 140" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" fill="none"/>
+      <path d="M352 230 Q351 170 350 130" stroke="rgba(0,0,0,0.06)" stroke-width="1" fill="none"/>
+
+      <!-- 枝条 -->
+      <g stroke="#8d9a6e" stroke-linecap="round" fill="none">
+        <!-- 主枝 左上 -->
+        <path d="M348 118 Q300 100 250 78" stroke-width="2.5" stroke-opacity="0.7"/>
+        <path d="M348 118 Q310 108 280 95" stroke-width="1.8" stroke-opacity="0.55"/>
+        <!-- 主枝 右上 -->
+        <path d="M354 112 Q400 90 450 70" stroke-width="2.5" stroke-opacity="0.7"/>
+        <path d="M354 112 Q410 100 440 90" stroke-width="1.8" stroke-opacity="0.55"/>
+        <!-- 中枝 左下 -->
+        <path d="M349 135 Q300 145 240 148" stroke-width="2" stroke-opacity="0.6"/>
+        <path d="M349 135 Q310 150 280 155" stroke-width="1.5" stroke-opacity="0.45"/>
+        <!-- 中枝 右下 -->
+        <path d="M353 130 Q400 140 460 142" stroke-width="2" stroke-opacity="0.6"/>
+        <path d="M353 130 Q410 148 440 150" stroke-width="1.5" stroke-opacity="0.45"/>
+        <!-- 下枝 左 -->
+        <path d="M350 160 Q310 175 270 185" stroke-width="1.5" stroke-opacity="0.5"/>
+        <!-- 下枝 右 -->
+        <path d="M352 155 Q390 170 430 178" stroke-width="1.5" stroke-opacity="0.5"/>
+      </g>
+
+      <!-- SVG 叶子（静态装饰） -->
+      <g>
+        <!-- 嫩绿小叶 -->
+        <ellipse cx="260" cy="72" rx="5" ry="7" fill="#a5d6a7" transform="rotate(-30 260 72)" opacity="0.8"/>
+        <ellipse cx="435" cy="66" rx="5" ry="7" fill="#a5d6a7" transform="rotate(20 435 66)" opacity="0.8"/>
+        <ellipse cx="280" cy="150" rx="4" ry="6" fill="#a5d6a7" transform="rotate(-25 280 150)" opacity="0.7"/>
+        <!-- 深绿大叶 -->
+        <ellipse cx="220" cy="85" rx="7" ry="9" fill="#2E7D32" transform="rotate(-35 220 85)" opacity="0.75"/>
+        <ellipse cx="470" cy="75" rx="7" ry="9" fill="#2E7D32" transform="rotate(35 470 75)" opacity="0.75"/>
+        <ellipse cx="250" cy="95" rx="6" ry="8" fill="#388E3C" transform="rotate(-40 250 95)" opacity="0.7"/>
+        <ellipse cx="445" cy="88" rx="6" ry="8" fill="#388E3C" transform="rotate(30 445 88)" opacity="0.7"/>
+        <ellipse cx="420" cy="140" rx="6" ry="8" fill="#2E7D32" transform="rotate(25 420 140)" opacity="0.65"/>
+        <ellipse cx="290" cy="145" rx="5" ry="7" fill="#388E3C" transform="rotate(-30 290 145)" opacity="0.65"/>
+        <!-- 黄叶 -->
+        <ellipse cx="330" cy="82" rx="5" ry="8" fill="#d4a843" transform="rotate(-20 330 82)" opacity="0.7"/>
+        <ellipse cx="390" cy="148" rx="5" ry="7" fill="#d4a843" transform="rotate(15 390 148)" opacity="0.65"/>
+      </g>
+    </svg>
+
+    <!-- CSS 叶片（带交互动画） -->
+    <div class="hanging-leaf bud" style="top:58px;left:36%"></div>
+    <div class="hanging-leaf bud" style="top:63px;right:38%"></div>
+    <div class="hanging-leaf bud" style="top:140px;left:41%"></div>
+    <div class="hanging-leaf dark" style="top:50px;left:30%"></div>
+    <div class="hanging-leaf dark" style="top:45px;right:32%"></div>
+    <div class="hanging-leaf dark" style="top:68px;left:25%"></div>
+    <div class="hanging-leaf dark" style="top:75px;right:27%"></div>
+    <div class="hanging-leaf dark" style="top:135px;right:42%"></div>
+    <div class="hanging-leaf dark" style="top:128px;left:32%"></div>
+    <div class="hanging-leaf yel" style="top:95px;left:38%"></div>
+    <div class="hanging-leaf yel" style="top:145px;right:35%"></div>
     <div class="falling-leaf f1"></div>
     <div class="falling-leaf f2"></div>
     <div class="falling-leaf f3"></div>
