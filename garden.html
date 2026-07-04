@@ -296,31 +296,62 @@
   R.appendChild(rc.path('M340 320 Q338 260 343 210 Q345 192 346 175 L354 175 Q355 192 357 210 Q362 260 360 320 Z',
     {fill:'#8d7b6a',fillStyle:'hachure',hachureGap:4,hachureAngle:70,fillWeight:1.2,roughness:2.8,bowing:2.5}));
 
+  // ============ 叶片类型定义 ============
+  var LEAF_TYPES = {
+    young:  {fill:'#B8F36B',stroke:'#5A9E3A',roughness:1.5,fillStyle:'solid'},
+    mature: {fill:'#3A7D29',stroke:'#1B4C19',roughness:1.2,fillStyle:'solid'},
+    yellow: {fill:'#F9C74F',stroke:'#D68C2E',roughness:1.8,fillStyle:'zigzag'},
+    dead:   {fill:'#B5835A',stroke:'#6B4F3D',roughness:2.2,fillStyle:'cross-hatch'},
+  };
+  function drawLeaf(x, y, leafType, size, angle) {
+    var opts = LEAF_TYPES[leafType];
+    var lw = 14*size, lh = 10*size;
+    // 叶片主体
+    var g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('transform','translate('+x+','+y+') rotate('+(angle*180/Math.PI)+')');
+    g.appendChild(rc.ellipse(0,0,lw,lh,{fill:opts.fill,fillStyle:opts.fillStyle,roughness:opts.roughness,bowing:1.2}));
+    // 叶脉
+    g.appendChild(rc.line(-lw*0.5,0,lw*0.5,0,{stroke:opts.stroke,roughness:1,strokeWidth:0.8}));
+    R.appendChild(g);
+    return g;
+  }
+
   // ============ 递归分枝 ============
   var allTips = [];
   var MAX_D = 5;
+  function pickLeafType(depth) {
+    // 越深越末梢：混合比例 30%嫩绿 40%深绿 20%黄 10%枯
+    var r = Math.random();
+    if (r < 0.30) return 'young';
+    if (r < 0.70) return 'mature';
+    if (r < 0.90) return 'yellow';
+    return 'dead';
+  }
   function grow(x, y, len, angle, depth) {
     if (depth > MAX_D) return;
     var x2 = x + Math.cos(angle) * len;
     var y2 = y + Math.sin(angle) * len;
-    // 枝条：越靠近末端越细
     var sw = depth <= 1 ? 3.5 : depth <= 2 ? 2.8 : depth <= 3 ? 2.0 : 1.3;
     R.appendChild(rc.line(x, y, x2, y2,
       {stroke:'#7d6b5d',strokeWidth:sw,roughness:2.5,bowing:2.2-depth*0.25}));
-    allTips.push({x:x2, y:y2, d:depth});
+    allTips.push({x:x2, y:y2, d:depth, angle:angle});
+    // 末梢画叶片
+    if (depth === MAX_D) {
+      var t = pickLeafType(depth);
+      var g = drawLeaf(x2, y2, t, rng(0.6,1.1), angle+rng(-0.4,0.4));
+      d3.select(g).attr('opacity',0).transition().delay(rng(200,800)).duration(500).attr('opacity',rng(0.7,0.95));
+    }
     if (depth < MAX_D) {
       var n = depth === 0 ? 3 : 2;
       for (var i = 0; i < n; i++) {
         var spread = 0.35 + (MAX_D-depth)*0.08;
         var ao = (i-(n-1)/2) * spread * 2 + (Math.random()-0.5)*0.45;
-        // 限制角度：不向下长
         var na = angle + ao;
         if (na < -Math.PI*0.85 && na > -Math.PI*1.15) na = angle + ao*0.5;
         grow(x2, y2, len*rng(0.55,0.75), na, depth+1);
       }
     }
   }
-  // 从树干顶端发出 1 个主干 → 3 条一级分枝
   grow(350, 178, 105, -Math.PI/2, 0);
 
   // ---- 筛出冠层末梢（depth >= 3，且在画布内） ----
@@ -332,18 +363,46 @@
     if (!tooClose) uniqueTips.push(t);
   });
 
-  // ---- 末梢叶片（rough 小椭圆） ----
-  uniqueTips.forEach(function(t,i){
-    var sz = t.d >= 5 ? rng(4,7) : rng(3,5);
-    var fills = ['#a5d6a7','#81c784','#66bb6a','#c8e6c9','#388e3c','#4caf50'];
-    var fill = fills[Math.floor(Math.random()*fills.length)];
-    var el = d3.select(R.appendChild(
-      rc.ellipse(t.x, t.y, sz*2, sz*2.6, {fill:fill, fillStyle:'solid', roughness:1.5, bowing:1})
-    ));
-    el.attr('opacity',0).attr('class','deco-leaf');
-    el.attr('transform','rotate('+rng(-55,55)+' '+t.x+' '+t.y+')');
-    el.transition().delay(i*50).duration(500).attr('opacity',rng(0.5,0.8)).ease(d3.easeBackOut);
-  });
+  // ============ 飘落枯叶 Canvas ============
+  var canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  canvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:3;';
+  document.getElementById('treeStage').appendChild(canvas);
+  var ctx = canvas.getContext('2d');
+  var rcCanvas = rough.canvas(canvas);
+
+  var deadLeaves = [];
+  function createDeadLeaf() {
+    return {
+      x: rng(180,520), y: rng(-30,60),
+      speedY: 0.3+rng(0,1.2), speedX: (Math.random()-0.5)*0.6,
+      rotation: rng(0,Math.PI*2), rotSpeed: (Math.random()-0.5)*0.08,
+      size: 0.4+rng(0,0.7), wobbleAmp: 0.4+rng(0,0.8),
+      wobbleFreq: 0.02+rng(0,0.03), time: rng(0,100),
+    };
+  }
+  for (var i=0;i<15;i++) deadLeaves.push(createDeadLeaf());
+
+  function animateFallingLeaves() {
+    if (!document.getElementById('treeStage')) return;
+    ctx.clearRect(0,0,W,H);
+    deadLeaves.forEach(function(lf){
+      lf.time++;
+      lf.y += lf.speedY;
+      lf.x += lf.speedX + Math.sin(lf.time*lf.wobbleFreq)*lf.wobbleAmp;
+      lf.rotation += lf.rotSpeed;
+      ctx.save();
+      ctx.translate(lf.x, lf.y);
+      ctx.rotate(lf.rotation);
+      rcCanvas.ellipse(0,0,12*lf.size,8*lf.size,{
+        fill:'#B5835A',stroke:'#6B4F3D',roughness:2.5,fillStyle:'cross-hatch'
+      });
+      ctx.restore();
+      if (lf.y > H+30) Object.assign(lf, createDeadLeaf());
+    });
+    requestAnimationFrame(animateFallingLeaves);
+  }
+  animateFallingLeaves();
 
   // ---- 内容节点（选取冠层中深度适中的末梢） ----
   var nodeTips = uniqueTips.filter(function(t){return t.d>=3 && t.d<=4 && t.y<185;});
