@@ -7,14 +7,14 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}]})"></script>
+<script src="https://unpkg.com/roughjs@4.6.6/bundled/rough.js"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
 <style>
   :root{
     --green:#2E7D32;--green-light:#4CAF50;--green-pale:#e8f5e9;
     --blue:#1976D2;--blue-light:#42A5F5;--blue-pale:#e3f2fd;
     --purple:#7B1FA2;--purple-light:#AB47BC;--purple-pale:#f3e5f5;
-    --orange:#E65100;
     --leaf-bud:#a5d6a7;--leaf-dark:#2E7D32;--leaf-yellow:#d4a843;--leaf-fall:#b0845c;
-    --bark:#6d5c4b;--bark-light:#8d7b6a;
     --text:#1e293b;--text-muted:#64748b;
     --card-bg:rgba(255,255,255,0.76);--card-border:rgba(255,255,255,0.48);
     --shadow-sm:0 4px 16px rgba(0,0,0,0.05);--shadow-md:0 8px 32px rgba(0,0,0,0.08);
@@ -30,8 +30,7 @@
   body::before{
     content:'';position:fixed;inset:0;
     background:radial-gradient(circle at 25% 15%,rgba(255,255,200,0.16) 0%,transparent 50%),
-              radial-gradient(circle at 72% 55%,rgba(200,230,255,0.14) 0%,transparent 50%),
-              radial-gradient(circle at 50% 80%,rgba(200,220,180,0.10) 0%,transparent 40%);
+              radial-gradient(circle at 72% 55%,rgba(200,230,255,0.14) 0%,transparent 50%);
     pointer-events:none;z-index:0;
   }
   .container{max-width:960px;margin:0 auto;padding:2rem 1.5rem 4rem;position:relative;z-index:1}
@@ -42,43 +41,44 @@
   nav.top-bar a.back{display:flex;align-items:center;gap:0.5rem}
   nav.top-bar a.back::before{content:'';display:inline-block;width:6px;height:6px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-bottom:1px}
 
-  .page-header{text-align:center;margin-bottom:2.5rem}
+  .page-header{text-align:center;margin-bottom:2rem}
   .page-header h1{font-size:2.8rem;background:linear-gradient(135deg,var(--green) 0%,#388E3C 40%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;letter-spacing:0.05em}
   .page-header .sub{color:var(--text-muted);font-style:italic;margin-top:0.3rem;font-size:0.98rem}
   .page-header .updated{display:inline-block;margin-top:0.6rem;font-size:0.8rem;color:var(--text-muted);background:var(--card-bg);padding:0.25rem 0.9rem;border-radius:var(--radius-full);border:1px solid var(--card-border);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 
-  /* ===== 树 (SVG) ===== */
-  .tree-stage{position:relative;height:260px;margin:0 auto 0.5rem;max-width:700px;overflow:visible}
+  /* 树画布 */
+  .tree-stage{position:relative;width:100%;max-width:700px;height:340px;margin:0 auto 0.2rem;overflow:visible}
   .tree-stage svg{width:100%;height:100%}
-  /* 挂在 SVG 树枝上的 CSS 叶片（带动画） */
-  .hanging-leaf{position:absolute;z-index:2;transition:all 0.5s ease;cursor:default}
+
+  /* CSS 交互叶片（叠在 SVG 上方） */
+  .hanging-leaf{position:absolute;z-index:2;transition:all 0.5s ease;cursor:default;animation:fadeInLeaf 0.8s ease backwards}
   .hanging-leaf::after{content:'';display:block;border-radius:80% 0 80% 0}
-  .hanging-leaf:hover{transform:scale(1.25)}
+  .hanging-leaf:hover{transform:scale(1.3)!important}
   .hanging-leaf.bud{width:11px;height:14px}
-  .hanging-leaf.bud::after{width:11px;height:14px;background:var(--leaf-bud);transform:rotate(-35deg);animation:budSway 4.5s ease-in-out infinite}
+  .hanging-leaf.bud::after{width:11px;height:14px;background:var(--leaf-bud);transform:rotate(-35deg);animation:budsway 4.5s ease-in-out infinite}
   .hanging-leaf.dark{width:15px;height:19px}
-  .hanging-leaf.dark::after{width:15px;height:19px;background:var(--leaf-dark);transform:rotate(-40deg);animation:darkSway 5.5s ease-in-out infinite}
+  .hanging-leaf.dark::after{width:15px;height:19px;background:var(--leaf-dark);transform:rotate(-40deg);animation:darksway 5.5s ease-in-out infinite}
   .hanging-leaf.yel{width:13px;height:16px}
-  .hanging-leaf.yel::after{width:13px;height:16px;background:var(--leaf-yellow);transform:rotate(-38deg);animation:yellowSway 4s ease-in-out infinite}
-  @keyframes budSway{0%,100%{transform:rotate(-35deg)}50%{transform:rotate(-29deg)}}
-  @keyframes darkSway{0%,100%{transform:rotate(-40deg)}50%{transform:rotate(-33deg)}}
-  @keyframes yellowSway{0%,100%{transform:rotate(-38deg)}50%{transform:rotate(-45deg)}}
-  /* 落叶 */
+  .hanging-leaf.yel::after{width:13px;height:16px;background:var(--leaf-yellow);transform:rotate(-38deg);animation:yelssway 4s ease-in-out infinite}
+  @keyframes budsway{0%,100%{transform:rotate(-35deg)}50%{transform:rotate(-29deg)}}
+  @keyframes darksway{0%,100%{transform:rotate(-40deg)}50%{transform:rotate(-33deg)}}
+  @keyframes yelssway{0%,100%{transform:rotate(-38deg)}50%{transform:rotate(-45deg)}}
+  @keyframes fadeInLeaf{from{opacity:0;transform:scale(0.3)}to{opacity:1;transform:scale(1)}}
+
   .falling-leaf{position:absolute;z-index:2;pointer-events:none;animation:leafFall 7s ease-in infinite}
   .falling-leaf::after{content:'';display:block;width:13px;height:17px;border-radius:80% 0 80% 0;background:var(--leaf-fall);transform:rotate(-45deg)}
-  .falling-leaf.f1{left:38%;top:10px;animation-delay:0s;animation-duration:7s}
-  .falling-leaf.f2{left:55%;top:-5px;animation-delay:-2.5s;animation-duration:7.5s}
-  .falling-leaf.f3{left:47%;top:-18px;animation-delay:-4.8s;animation-duration:6.5s}
+  .falling-leaf.f1{left:36%;top:15px;animation-delay:0s;animation-duration:7.5s}
+  .falling-leaf.f2{left:54%;top:0px;animation-delay:-3s;animation-duration:8s}
+  .falling-leaf.f3{left:46%;top:-12px;animation-delay:-5.5s;animation-duration:7s}
   @keyframes leafFall{
-    0%{transform:translateY(0) translateX(0) rotate(0deg);opacity:0.6}
-    25%{transform:translateY(50px) translateX(24px) rotate(70deg);opacity:0.4}
-    55%{transform:translateY(120px) translateX(-20px) rotate(190deg);opacity:0.25}
-    85%{transform:translateY(190px) translateX(10px) rotate(300deg);opacity:0.08}
-    100%{transform:translateY(260px) translateX(-8px) rotate(400deg);opacity:0}
+    0%{transform:translateY(0) translateX(0) rotate(0deg);opacity:0.55}
+    30%{transform:translateY(60px) translateX(28px) rotate(80deg);opacity:0.4}
+    60%{transform:translateY(140px) translateX(-22px) rotate(210deg);opacity:0.2}
+    100%{transform:translateY(340px) translateX(6px) rotate(400deg);opacity:0}
   }
 
-  /* ===== 图例 ===== */
-  .legend{display:flex;gap:1.6rem;flex-wrap:wrap;justify-content:center;margin:1.5rem 0 0.3rem;font-size:0.8rem;color:var(--text-muted)}
+  /* 图例 */
+  .legend{display:flex;gap:1.6rem;flex-wrap:wrap;justify-content:center;margin:1.2rem 0 0.3rem;font-size:0.8rem;color:var(--text-muted)}
   .legend span{display:flex;align-items:center;gap:0.4rem}
   .legend .dot{display:inline-block;width:10px;height:12px;border-radius:80% 0 80% 0;flex-shrink:0}
   .legend .dot.bud{background:var(--leaf-bud);transform:rotate(-35deg)}
@@ -86,7 +86,7 @@
   .legend .dot.yellow{background:var(--leaf-yellow);transform:rotate(-38deg)}
   .legend .dot.fall{background:var(--leaf-fall);transform:rotate(-45deg)}
 
-  /* ===== 分区标题 ===== */
+  /* 分区 */
   .section-head{display:flex;align-items:center;gap:0.55rem;margin:2.4rem 0 0.9rem;padding-left:0.2rem}
   .section-head .leaf-marker{flex-shrink:0;border-radius:80% 0 80% 0}
   .section-head .leaf-marker.bud{width:12px;height:15px;background:var(--leaf-bud);transform:rotate(-35deg)}
@@ -96,42 +96,34 @@
   .section-head h2::before{display:none}
   .section-head .tagline{font-size:0.78rem;color:var(--text-muted);margin-left:auto;font-style:italic}
 
-  /* ===== 卡片网格 ===== */
   .leaf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:0.3rem}
-
   .leaf-card{background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:var(--radius-md);padding:1.1rem 1.3rem;box-shadow:var(--shadow-sm);border:1px solid var(--card-border);position:relative;transition:all var(--transition);overflow:hidden}
   .leaf-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
   .leaf-card h3{font-size:0.98rem;font-weight:700;margin:0 0 0.15rem;display:flex;align-items:flex-start;gap:0.45rem}
   .leaf-card .tag{font-size:0.7rem;font-weight:600;padding:0.12rem 0.5rem;border-radius:var(--radius-full);white-space:nowrap;flex-shrink:0;margin-top:0.15rem}
   .leaf-card .meta{font-size:0.82rem;color:var(--text-muted);margin-bottom:0.3rem}
   .leaf-card .note{font-size:0.88rem;color:var(--text-muted);line-height:1.6}
-
   .leaf-card.bud{border-left:3px solid var(--leaf-bud)}
   .leaf-card.bud .tag{background:rgba(165,214,167,0.18);color:#388E3C}
   .leaf-card.bud::before{content:'';position:absolute;top:-12px;right:20px;width:20px;height:24px;background:radial-gradient(ellipse at 55% 65%,rgba(165,214,167,0.22),transparent 70%);border-radius:50%;pointer-events:none}
-
   .leaf-card.dark{border-left:3px solid var(--leaf-dark)}
   .leaf-card.dark .tag{background:rgba(46,125,50,0.12);color:var(--green)}
   .leaf-card.dark::before{content:'';position:absolute;top:-16px;right:16px;width:28px;height:32px;background:radial-gradient(ellipse at 50% 60%,rgba(46,125,50,0.16),transparent 70%);border-radius:50%;pointer-events:none}
-
   .leaf-card.yellow-card{border-left:3px solid var(--leaf-yellow)}
   .leaf-card.yellow-card .tag{background:rgba(212,168,67,0.16);color:#8d7222}
   .leaf-card.yellow-card::before{content:'';position:absolute;top:-14px;right:22px;width:24px;height:28px;background:radial-gradient(ellipse at 45% 65%,rgba(212,168,67,0.20),transparent 70%);border-radius:50%;pointer-events:none}
 
-  /* ===== 纪念册 ===== */
+  /* 纪念册 */
   .album-wrap{margin-top:3.2rem;margin-bottom:1.5rem}
   .album-book{position:relative;border-radius:22px;overflow:hidden;box-shadow:0 4px 28px rgba(0,0,0,0.09)}
   .album-book::before{content:'';position:absolute;inset:0;background:linear-gradient(170deg,#e8dfd2 0%,#f2ece2 25%,#ede5d8 50%,#f5f0e8 75%,#e6dccf 100%);z-index:0}
   .album-book::after{content:'';position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(90deg,rgba(0,0,0,0.06),transparent);z-index:1;border-radius:22px 0 0 22px}
-
   .album-pages{position:relative;z-index:2;padding:2.2rem 2rem 1.8rem}
   .album-pages::before{content:'';position:absolute;left:1.6rem;top:2rem;bottom:2rem;width:1px;background:repeating-linear-gradient(to bottom,rgba(139,119,90,0.18) 0px,rgba(139,119,90,0.18) 3px,transparent 3px,transparent 7px)}
-
   .album-title-block{display:flex;align-items:baseline;gap:0.8rem;margin-bottom:1.5rem;padding-left:2.4rem}
   .album-title-block h2{font-size:1.3rem;color:#4e3d2f;font-weight:700;margin:0;padding:0;letter-spacing:0.04em}
   .album-title-block h2::before{display:none}
   .album-title-block .album-desc{font-size:0.82rem;color:#9b8b7a;font-style:italic}
-
   .specimen-list{display:flex;flex-direction:column;gap:0.9rem;padding-left:2.4rem}
   .specimen{display:flex;align-items:flex-start;gap:1rem;padding:0.9rem 1.2rem;background:rgba(255,255,255,0.50);border-radius:12px;border:1px solid rgba(161,136,107,0.14);transition:all var(--transition);position:relative}
   .specimen:hover{background:rgba(255,255,255,0.72);box-shadow:0 2px 14px rgba(0,0,0,0.04)}
@@ -144,15 +136,13 @@
   .specimen .label .note{font-size:0.85rem;color:var(--text-muted);line-height:1.55}
   .specimen .pin{position:absolute;top:-4px;left:22px;width:9px;height:9px;background:radial-gradient(circle at 40% 35%,#d0d0d0,#939393);border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,0.25);z-index:2}
 
-  /* ===== 页脚 ===== */
   footer{text-align:center;padding:2.5rem 1rem 1.5rem;color:var(--text-muted);font-size:0.9rem;position:relative;z-index:1}
   footer::before{content:'';display:block;width:64px;height:2px;background:linear-gradient(90deg,var(--green-light),var(--blue-light),var(--purple-light));margin:0 auto 1rem;border-radius:1px}
-
   .katex{font-size:1.05em}
   .katex-display{overflow-x:auto;overflow-y:hidden;padding:0.3rem 0}
 
   @media(max-width:700px){
-    .tree-stage{height:200px}
+    .tree-stage{height:280px}
     .leaf-grid{grid-template-columns:1fr}
     .page-header h1{font-size:2.2rem}
     .legend{gap:0.7rem;font-size:0.75rem}
@@ -173,166 +163,20 @@
     <span class="updated" id="updatedDate">最近浇水：2026-07-04</span>
   </header>
 
-  <!-- 树身 (SVG 水彩插画) -->
-  <div class="tree-stage">
-    <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <!-- 水彩边缘纹理 -->
-        <filter id="watercolor" x="-10%" y="-10%" width="120%" height="120%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" result="noise"/>
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" result="displaced"/>
-        </filter>
-        <filter id="wc-light" x="-10%" y="-10%" width="120%" height="120%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" result="noise"/>
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G"/>
-        </filter>
-        <!-- 光斑柔光 -->
-        <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="4"/>
-        </filter>
-        <filter id="softGlow2" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="2"/>
-        </filter>
-        <!-- 树冠渐变：水彩叠色 -->
-        <radialGradient id="wc1" cx="35%" cy="45%"><stop offset="0%" stop-color="#a5d6a7" stop-opacity="0.55"/><stop offset="60%" stop-color="#81c784" stop-opacity="0.30"/><stop offset="100%" stop-color="#81c784" stop-opacity="0"/></radialGradient>
-        <radialGradient id="wc2" cx="60%" cy="40%"><stop offset="0%" stop-color="#c8e6c9" stop-opacity="0.50"/><stop offset="55%" stop-color="#a5d6a7" stop-opacity="0.28"/><stop offset="100%" stop-color="#a5d6a7" stop-opacity="0"/></radialGradient>
-        <radialGradient id="wc3" cx="50%" cy="50%"><stop offset="0%" stop-color="#66bb6a" stop-opacity="0.42"/><stop offset="70%" stop-color="#81c784" stop-opacity="0.20"/><stop offset="100%" stop-color="#81c784" stop-opacity="0"/></radialGradient>
-        <radialGradient id="wc4" cx="45%" cy="60%"><stop offset="0%" stop-color="#a5d6a7" stop-opacity="0.38"/><stop offset="100%" stop-color="#a5d6a7" stop-opacity="0"/></radialGradient>
-        <radialGradient id="wc5" cx="38%" cy="38%"><stop offset="0%" stop-color="#c8e6c9" stop-opacity="0.45"/><stop offset="100%" stop-color="#c8e6c9" stop-opacity="0"/></radialGradient>
-        <!-- 光斑渐变 -->
-        <radialGradient id="sunspot" cx="50%" cy="50%"><stop offset="0%" stop-color="#fffde7" stop-opacity="0.55"/><stop offset="50%" stop-color="#fff9c4" stop-opacity="0.18"/><stop offset="100%" stop-color="#fff9c4" stop-opacity="0"/></radialGradient>
-        <!-- 树干 -->
-        <linearGradient id="bark" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stop-color="#6d5c4b"/><stop offset="35%" stop-color="#8d7b6a"/><stop offset="70%" stop-color="#7d6b5b"/><stop offset="100%" stop-color="#5d4a3a"/>
-        </linearGradient>
-        <!-- 地面阴影 -->
-        <radialGradient id="shadow" cx="50%" cy="50%"><stop offset="0%" stop-color="#8d7b6a" stop-opacity="0.15"/><stop offset="100%" stop-color="#8d7b6a" stop-opacity="0"/></radialGradient>
-        <!-- 阴影滤镜 -->
-        <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur in="SourceAlpha" stdDeviation="2"/><feOffset dx="1" dy="2"/><feComponentTransfer><feFuncA type="linear" slope="0.12"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
+  <!-- 手绘树 (D3 + Rough.js) -->
+  <div class="tree-stage" id="treeStage"></div>
 
-      <!-- 地面阴影 -->
-      <ellipse cx="350" cy="258" rx="140" ry="16" fill="url(#shadow)"/>
-
-      <!-- === 树冠：有机路径（非椭圆），水彩滤镜 === -->
-      <g filter="url(#watercolor)">
-        <!-- 最底层大色块 -->
-        <path d="M200 120 C190 90 230 55 290 50 C330 42 370 42 410 50 C470 55 510 90 500 125 C505 155 475 175 430 180 C390 185 320 188 280 182 C235 178 210 150 200 120Z" fill="url(#wc1)" opacity="0.9"/>
-        <!-- 中层左侧 -->
-        <path d="M175 110 C170 80 220 45 280 42 C320 38 355 40 380 48 C350 75 320 100 290 130 C255 140 210 135 175 110Z" fill="url(#wc2)" opacity="0.85"/>
-        <!-- 中层右侧 -->
-        <path d="M420 48 C470 52 520 75 525 110 C530 145 500 165 460 175 C480 140 475 100 455 72 C440 55 420 48 420 48Z" fill="url(#wc5)" opacity="0.80"/>
-        <!-- 上层深色 -->
-        <path d="M240 52 C270 32 330 25 380 28 C410 30 440 38 460 50 C450 65 420 75 380 70 C340 68 290 62 255 58 C240 55 240 52 240 52Z" fill="url(#wc3)" opacity="0.85"/>
-        <!-- 底部暖色叠层 -->
-        <path d="M250 155 C280 140 330 135 380 138 C420 140 455 148 470 165 C440 178 380 185 330 182 C285 178 260 168 250 155Z" fill="url(#wc4)" opacity="0.75"/>
-      </g>
-
-      <!-- === 光斑：透过树叶的阳光 === -->
-      <g filter="url(#softGlow)">
-        <ellipse cx="310" cy="68" rx="18" ry="12" fill="url(#sunspot)"/>
-        <ellipse cx="400" cy="55" rx="14" ry="9" fill="url(#sunspot)"/>
-        <ellipse cx="260" cy="100" rx="11" ry="7" fill="url(#sunspot)"/>
-        <ellipse cx="450" cy="90" rx="12" ry="8" fill="url(#sunspot)"/>
-        <ellipse cx="350" cy="42" rx="10" ry="6" fill="url(#sunspot)"/>
-        <ellipse cx="330" cy="130" rx="9" ry="5" fill="url(#sunspot)"/>
-        <ellipse cx="420" cy="145" rx="8" ry="5" fill="url(#sunspot)"/>
-      </g>
-      <g filter="url(#softGlow2)">
-        <ellipse cx="285" cy="75" rx="6" ry="4" fill="#fffde7" opacity="0.35"/>
-        <ellipse cx="380" cy="48" rx="5" ry="3" fill="#fffde7" opacity="0.30"/>
-        <ellipse cx="440" cy="78" rx="4" ry="3" fill="#fffde7" opacity="0.30"/>
-        <ellipse cx="320" cy="118" rx="5" ry="3" fill="#fffde7" opacity="0.25"/>
-      </g>
-
-      <!-- === 树干：不规则轮廓 === -->
-      <g filter="url(#wc-light)">
-        <path d="M340 250 Q338 210 340 175 Q341 155 342 138 Q343 125 343 115 L357 115 Q357 125 358 138 Q359 155 360 175 Q362 210 360 250Z" fill="url(#bark)"/>
-        <!-- 树干纹理 -->
-        <path d="M346 245 Q345 200 347 170 Q348 150 348 130" stroke="rgba(255,255,255,0.07)" stroke-width="2" fill="none"/>
-        <path d="M352 245 Q353 200 352 170 Q351 150 351 135" stroke="rgba(0,0,0,0.05)" stroke-width="1.5" fill="none"/>
-        <path d="M349 240 Q350 210 350 180" stroke="rgba(255,255,255,0.05)" stroke-width="1" fill="none"/>
-      </g>
-
-      <!-- === 枝条：轻微抖动，手绘感 === -->
-      <g stroke="#7d6b5d" stroke-linecap="round" fill="none" filter="url(#wc-light)">
-        <!-- 左上 -->
-        <path d="M345 122 Q320 108 298 94 Q278 84 258 76 Q248 72 238 70" stroke-width="3.8" stroke-opacity="0.82"/>
-        <path d="M343 118 Q315 105 290 95 Q270 88 255 84" stroke-width="2.4" stroke-opacity="0.68"/>
-        <path d="M268 82 Q255 77 242 76" stroke-width="1.6" stroke-opacity="0.52"/>
-        <!-- 右上 -->
-        <path d="M356 118 Q382 102 408 90 Q435 76 460 67 Q472 63 485 61" stroke-width="3.8" stroke-opacity="0.82"/>
-        <path d="M358 114 Q385 100 412 90 Q438 80 458 76" stroke-width="2.4" stroke-opacity="0.68"/>
-        <path d="M450 74 Q465 70 478 68" stroke-width="1.6" stroke-opacity="0.52"/>
-        <!-- 左下 -->
-        <path d="M347 142 Q315 148 280 155 Q255 160 232 166 Q218 170 208 174" stroke-width="3.2" stroke-opacity="0.78"/>
-        <path d="M345 140 Q310 150 278 158 Q258 162 242 167" stroke-width="2.0" stroke-opacity="0.62"/>
-        <!-- 右下 -->
-        <path d="M355 138 Q388 144 420 152 Q448 158 472 163 Q488 167 500 170" stroke-width="3.2" stroke-opacity="0.78"/>
-        <path d="M357 136 Q390 145 422 154 Q448 160 468 164" stroke-width="2.0" stroke-opacity="0.62"/>
-        <!-- 下侧 -->
-        <path d="M349 168 Q325 182 295 195 Q272 205 255 212" stroke-width="2.2" stroke-opacity="0.70"/>
-        <path d="M353 165 Q378 178 405 190 Q425 198 442 204" stroke-width="2.2" stroke-opacity="0.70"/>
-        <!-- 顶部分叉 -->
-        <path d="M344 115 Q325 100 308 88 Q295 80 285 76" stroke-width="2.4" stroke-opacity="0.72"/>
-        <path d="M357 112 Q375 96 392 84 Q406 76 418 72" stroke-width="2.4" stroke-opacity="0.72"/>
-      </g>
-
-      <!-- === SVG 静态叶子 === -->
-      <g filter="url(#dropShadow)">
-        <!-- 嫩绿小叶 -->
-        <path d="M238 68 Q242 62 248 65 Q244 72 238 68Z" fill="#a5d6a7" opacity="0.85"/>
-        <path d="M480 58 Q484 52 490 55 Q486 62 480 58Z" fill="#a5d6a7" opacity="0.85"/>
-        <path d="M210 170 Q214 164 220 167 Q216 174 210 170Z" fill="#a5d6a7" opacity="0.80"/>
-        <path d="M498 166 Q502 160 508 163 Q504 170 498 166Z" fill="#a5d6a7" opacity="0.80"/>
-        <!-- 深绿大叶 -->
-        <path d="M255 74 Q260 66 267 70 Q262 78 255 74Z" fill="#2E7D32" opacity="0.78"/>
-        <path d="M460 64 Q465 56 472 60 Q467 68 460 64Z" fill="#2E7D32" opacity="0.78"/>
-        <path d="M282 78 Q287 70 294 74 Q289 82 282 78Z" fill="#388E3C" opacity="0.72"/>
-        <path d="M448 72 Q453 64 460 68 Q455 76 448 72Z" fill="#388E3C" opacity="0.72"/>
-        <path d="M305 85 Q310 77 317 81 Q312 89 305 85Z" fill="#2E7D32" opacity="0.70"/>
-        <path d="M412 80 Q417 72 424 76 Q419 84 412 80Z" fill="#2E7D32" opacity="0.70"/>
-        <path d="M245 162 Q250 155 256 159 Q252 166 245 162Z" fill="#2E7D32" opacity="0.68"/>
-        <path d="M468 158 Q473 151 479 155 Q475 162 468 158Z" fill="#388E3C" opacity="0.68"/>
-        <!-- 黄叶 -->
-        <path d="M260 208 Q265 201 271 205 Q267 212 260 208Z" fill="#d4a843" opacity="0.72"/>
-        <path d="M438 200 Q443 193 449 197 Q445 204 438 200Z" fill="#d4a843" opacity="0.72"/>
-        <path d="M225 148 Q230 141 236 145 Q232 152 225 148Z" fill="#d4a843" opacity="0.70"/>
-        <path d="M472 142 Q477 135 483 139 Q479 146 472 142Z" fill="#d4a843" opacity="0.70"/>
-      </g>
-    </svg>
-
-    <!-- CSS 叶片（交互动画） -->
-    <div class="hanging-leaf bud" style="top:50px;left:31%"></div>
-    <div class="hanging-leaf bud" style="top:46px;right:31%"></div>
-    <div class="hanging-leaf bud" style="top:155px;left:29%"></div>
-    <div class="hanging-leaf bud" style="top:152px;right:30%"></div>
-    <div class="hanging-leaf dark" style="top:65px;left:24%"></div>
-    <div class="hanging-leaf dark" style="top:60px;right:24%"></div>
-    <div class="hanging-leaf dark" style="top:78px;left:36%"></div>
-    <div class="hanging-leaf dark" style="top:74px;right:36%"></div>
-    <div class="hanging-leaf dark" style="top:150px;right:38%"></div>
-    <div class="hanging-leaf dark" style="top:158px;left:23%"></div>
-    <div class="hanging-leaf yel" style="top:195px;left:34%"></div>
-    <div class="hanging-leaf yel" style="top:190px;right:35%"></div>
-    <div class="falling-leaf f1"></div>
-    <div class="falling-leaf f2"></div>
-    <div class="falling-leaf f3"></div>
-  </div>
-
+  <!-- 图例 -->
   <div class="legend">
-    <span><i class="dot bud"></i> 嫩绿小叶 &nbsp;&middot;&nbsp; 新鲜推荐</span>
-    <span><i class="dot dark"></i> 深绿大叶 &nbsp;&middot;&nbsp; 核心推荐</span>
-    <span><i class="dot yellow"></i> 黄叶 &nbsp;&middot;&nbsp; 正在过渡</span>
-    <span><i class="dot fall"></i> 落叶 &nbsp;&middot;&nbsp; 已归纪念册</span>
+    <span><i class="dot bud"></i>嫩绿小叶&nbsp;&middot;&nbsp;新鲜推荐</span>
+    <span><i class="dot dark"></i>深绿大叶&nbsp;&middot;&nbsp;核心推荐</span>
+    <span><i class="dot yellow"></i>黄叶&nbsp;&middot;&nbsp;正在过渡</span>
+    <span><i class="dot fall"></i>落叶&nbsp;&middot;&nbsp;已归纪念册</span>
   </div>
 
   <!-- ===== 深绿大叶 ===== -->
   <div class="section-head">
-    <i class="leaf-marker dark"></i>
-    <h2>核心书单</h2>
+    <i class="leaf-marker dark"></i><h2>核心书单</h2>
     <span class="tagline">深绿大叶 &middot; 2026.07</span>
   </div>
   <div class="leaf-grid">
@@ -355,8 +199,7 @@
 
   <!-- ===== 嫩绿小叶 ===== -->
   <div class="section-head">
-    <i class="leaf-marker bud"></i>
-    <h2>可以试试的事</h2>
+    <i class="leaf-marker bud"></i><h2>可以试试的事</h2>
     <span class="tagline">嫩绿小叶 &middot; 2026.07</span>
   </div>
   <div class="leaf-grid">
@@ -376,8 +219,7 @@
 
   <!-- ===== 黄叶 ===== -->
   <div class="section-head">
-    <i class="leaf-marker yellow"></i>
-    <h2>正在过渡</h2>
+    <i class="leaf-marker yellow"></i><h2>正在过渡</h2>
     <span class="tagline">黄叶 &middot; 从&ldquo;在想&rdquo;到&ldquo;去做&rdquo;</span>
   </div>
   <div class="leaf-grid">
@@ -395,61 +237,188 @@
     </div>
   </div>
 
-  <!-- ===== 纪念册 ===== -->
-  <div class="album-wrap">
-    <div class="album-book">
-      <div class="album-pages">
-        <div class="album-title-block">
-          <h2>纪念册 &nbsp;&middot;&nbsp; 落叶标本</h2>
-          <span class="album-desc">曾经挂在枝头、如今归于泥土的叶子，被压在这里</span>
-        </div>
-        <div class="specimen-list">
-
-          <div class="specimen">
-            <span class="pin"></span>
-            <div class="pressed"></div>
-            <div class="label">
-              <h3>什么是好的证明</h3>
-              <p class="date-line">采集于 2026.07.04 &nbsp;&middot;&nbsp; 已沉淀</p>
-              <p class="note">&ldquo;六块排列&rdquo;的洞察&mdash;&mdash;用对称性消灭全部计算。这种证明不只是正确，它让你觉得世界本来就该是这样。这片叶子已经化成了土壤，滋养着你对证明的审美。</p>
-            </div>
-          </div>
-
-          <div class="specimen">
-            <span class="pin"></span>
-            <div class="pressed"></div>
-            <div class="label">
-              <h3>解出第一道含参积分</h3>
-              <p class="date-line">采集于 2026.07.03 &nbsp;&middot;&nbsp; 已内化</p>
-              <p class="note">当时觉得莱布尼茨公式的三条通道很陌生&mdash;&mdash;现在它们已经是你条件反射的一部分。从&ldquo;算出来&rdquo;到&ldquo;会想&rdquo;，这片叶子完成了它的使命。</p>
-            </div>
-          </div>
-
-          <div class="specimen">
-            <span class="pin"></span>
-            <div class="pressed"></div>
-            <div class="label">
-              <h3>第一次理解极坐标的 <em>r</em></h3>
-              <p class="date-line">采集于 2026.06 &nbsp;&middot;&nbsp; 已刻入直觉</p>
-              <p class="note">&ldquo;那个 <em>r</em> 是弧长 $r d\theta$ 里的 <em>r</em>，通过面积微元悄悄跑到积分式里&rdquo;&mdash;&mdash;这句话现在不用再想了，它已经长成了直觉。落叶不是结束，是根系的一部分。</p>
-            </div>
-          </div>
-
-        </div>
-      </div>
+  <!-- 纪念册 -->
+  <div class="album-wrap"><div class="album-book"><div class="album-pages">
+    <div class="album-title-block"><h2>纪念册 &nbsp;&middot;&nbsp; 落叶标本</h2><span class="album-desc">曾经挂在枝头、如今归于泥土的叶子，被压在这里</span></div>
+    <div class="specimen-list">
+      <div class="specimen"><span class="pin"></span><div class="pressed"></div><div class="label"><h3>什么是好的证明</h3><p class="date-line">采集于 2026.07.04 &nbsp;&middot;&nbsp; 已沉淀</p><p class="note">&ldquo;六块排列&rdquo;的洞察&mdash;&mdash;用对称性消灭全部计算。这种证明不只是正确，它让你觉得世界本来就该是这样。这片叶子已经化成了土壤，滋养着你对证明的审美。</p></div></div>
+      <div class="specimen"><span class="pin"></span><div class="pressed"></div><div class="label"><h3>解出第一道含参积分</h3><p class="date-line">采集于 2026.07.03 &nbsp;&middot;&nbsp; 已内化</p><p class="note">当时觉得莱布尼茨公式的三条通道很陌生&mdash;&mdash;现在它们已经是你条件反射的一部分。从&ldquo;算出来&rdquo;到&ldquo;会想&rdquo;，这片叶子完成了它的使命。</p></div></div>
+      <div class="specimen"><span class="pin"></span><div class="pressed"></div><div class="label"><h3>第一次理解极坐标的 <em>r</em></h3><p class="date-line">采集于 2026.06 &nbsp;&middot;&nbsp; 已刻入直觉</p><p class="note">&ldquo;那个 <em>r</em> 是弧长 $r d\theta$ 里的 <em>r</em>，通过面积微元悄悄跑到积分式里&rdquo;&mdash;&mdash;这句话现在不用再想了，它已经长成了直觉。落叶不是结束，是根系的一部分。</p></div></div>
     </div>
-  </div>
+  </div></div></div>
 
   <footer>豆花喵的小栈 &nbsp;&middot;&nbsp; 像树木一样安静生长 &nbsp;&middot;&nbsp; 每次新发现，都会种在这片小森林里</footer>
 </div>
 
 <script>
+// ===== D3 + Rough.js 手绘水彩树 =====
+(function(){
+  var stage = d3.select('#treeStage');
+  var W = 700, H = 340;
+
+  var svg = stage.append('svg').attr('viewBox','0 0 '+W+' '+H);
+  var defs = svg.append('defs');
+
+  // ---- 水彩纸纹理滤镜 ----
+  defs.append('filter').attr('id','paper').html(
+    '<feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="5" result="n"/>'+
+    '<feColorMatrix type="matrix" values="1 0 0 0 0  0 0.94 0 0 0  0 0.84 0 0 0  0 0 0 0.10 0" result="c"/>'+
+    '<feBlend in="SourceGraphic" in2="c" mode="multiply"/>'
+  );
+  // 光斑柔光
+  defs.append('filter').attr('id','glow').html('<feGaussianBlur stdDeviation="4.5"/>');
+  defs.append('filter').attr('id','glowSm').html('<feGaussianBlur stdDeviation="2"/>');
+  // 光斑渐变
+  defs.append('radialGradient').attr('id','sun').html(
+    '<stop offset="0%" stop-color="#fffde7" stop-opacity="0.50"/>'+
+    '<stop offset="60%" stop-color="#fff9c4" stop-opacity="0.12"/>'+
+    '<stop offset="100%" stop-color="#fff9c4" stop-opacity="0"/>'
+  );
+  // 地面阴影
+  defs.append('radialGradient').attr('id','ground').html(
+    '<stop offset="0%" stop-color="#9b8b7a" stop-opacity="0.12"/>'+
+    '<stop offset="100%" stop-color="#9b8b7a" stop-opacity="0"/>'
+  );
+
+  // ---- 纸纹背景 ----
+  svg.append('rect').attr('width',W).attr('height',H).attr('fill','#faf6ef');
+  svg.append('rect').attr('width',W).attr('height',H).attr('fill','#f5f0e5').attr('opacity',0.4).attr('filter','url(#paper)');
+
+  // ---- Rough.js 实例 ----
+  var rc = rough.svg(svg.node(), {options:{roughness:2.2,bowing:1.8}});
+  var R = svg.node(); // 原生 DOM，rough 生成的节点要 appendChild
+
+  // ---- 地面阴影 ----
+  var gs = svg.append('ellipse').attr('cx',350).attr('cy',326).attr('rx',155).attr('ry',14).attr('fill','url(#ground)').node();
+
+  // ---- 树干 ----
+  var trunk = rc.rectangle(338,152,24,170,{fill:'#8d7b6a',fillStyle:'hachure',hachureGap:4,hachureAngle:70,fillWeight:1.2,roughness:2.8,bowing:2.5});
+  R.appendChild(trunk);
+
+  // ---- 树冠（rough 椭圆叠层） ----
+  var canopyDefs = [
+    {cx:350,cy:88,rx:178,ry:72,fill:'#c8e6c9',gap:5,op:0.9},
+    {cx:275,cy:72,rx:125,ry:62,fill:'#a5d6a7',gap:4.5,op:0.88},
+    {cx:425,cy:68,rx:130,ry:58,fill:'#81c784',gap:4.5,op:0.85},
+    {cx:310,cy:108,rx:112,ry:52,fill:'#66bb6a',gap:4,op:0.82},
+    {cx:395,cy:102,rx:108,ry:48,fill:'#a5d6a7',gap:4,op:0.78},
+  ];
+  canopyDefs.forEach(function(d){
+    var el = d3.select(R.appendChild(
+      rc.ellipse(d.cx,d.cy,d.rx*2,d.ry*2,{fill:d.fill,fillStyle:'hachure',hachureGap:d.gap,hachureAngle:55,fillWeight:1,roughness:2.2,bowing:1.5})
+    ));
+    el.attr('opacity',d.op);
+  });
+
+  // ---- 枝条 ----
+  var branchPaths = [
+    'M345 175 Q315 158 275 135 Q240 118 212 108',
+    'M355 170 Q385 152 415 130 Q448 112 478 100',
+    'M346 190 Q310 188 268 192 Q232 198 202 206',
+    'M355 185 Q390 183 425 186 Q458 192 488 198',
+    'M347 210 Q318 220 280 232 Q252 242 230 250',
+    'M355 206 Q385 215 415 226 Q440 235 460 242',
+    'M348 168 Q322 150 298 138 Q275 128 258 122',
+    'M354 164 Q378 146 402 134 Q422 124 438 118',
+  ];
+  branchPaths.forEach(function(d){
+    R.appendChild(rc.path(d,{stroke:'#7d6b5d',strokeWidth:2.5,roughness:2.5,bowing:2}));
+  });
+
+  // ---- 装饰小叶子（散布在树冠周围） ----
+  var decoLeaves = [];
+  var rng = function(a,b){return a+Math.random()*(b-a);};
+  for(var i=0;i<35;i++){
+    var cx = rng(200,500), cy = rng(40,160);
+    var rx = rng(3,8), ry = rng(4,10);
+    var fills = ['#a5d6a7','#81c784','#66bb6a','#c8e6c9','#d4a843','#388e3c','#4caf50'];
+    var fill = fills[Math.floor(Math.random()*fills.length)];
+    decoLeaves.push({cx:cx,cy:cy,rx:rx,ry:ry,fill:fill});
+  }
+  decoLeaves.forEach(function(d,i){
+    var el = d3.select(R.appendChild(
+      rc.ellipse(d.cx,d.cy,d.rx*2,d.ry*2,{fill:d.fill,fillStyle:'solid',roughness:1.5,bowing:1})
+    ));
+    el.attr('opacity',0).attr('class','deco-leaf');
+    el.attr('transform','rotate('+rng(-60,60)+' '+d.cx+' '+d.cy+')');
+    // D3 动画
+    el.transition().delay(i*40).duration(600)
+      .attr('opacity',rng(0.4,0.75))
+      .ease(d3.easeBackOut);
+  });
+
+  // ---- 光斑 ----
+  var spots = [
+    {cx:310,cy:70,rx:20,ry:13},{cx:410,cy:55,rx:16,ry:10},{cx:260,cy:105,rx:12,ry:7},
+    {cx:445,cy:92,rx:14,ry:8},{cx:350,cy:44,rx:11,ry:6},{cx:330,cy:130,rx:10,ry:5},
+    {cx:420,cy:148,rx:9,ry:5},{cx:280,cy:78,rx:8,ry:5},{cx:380,cy:50,rx:7,ry:4},
+  ];
+  spots.forEach(function(d){
+    var el = svg.append('ellipse').attr('cx',d.cx).attr('cy',d.cy).attr('rx',d.rx).attr('ry',d.ry)
+      .attr('fill','url(#sun)').attr('filter','url(#glow)').attr('opacity',0);
+    el.transition().delay(rng(300,1500)).duration(1200).attr('opacity',rng(0.5,0.85));
+  });
+  // 小光斑
+  var ss = [{cx:285,cy:75,r:4},{cx:380,cy:48,r:3.5},{cx:440,cy:80,r:3},{cx:320,cy:118,r:3.5},{cx:360,cy:35,r:2.5},{cx:400,cy:120,r:3}];
+  ss.forEach(function(d){
+    var el = svg.append('circle').attr('cx',d.cx).attr('cy',d.cy).attr('r',d.r)
+      .attr('fill','#fffef5').attr('filter','url(#glowSm)').attr('opacity',0);
+    el.transition().delay(rng(500,2000)).duration(1000).attr('opacity',rng(0.2,0.35));
+  });
+
+  // ---- 枝端节点（云朵/气泡形） ----
+  var nodes = [
+    {cx:212,cy:106,r:14,fill:'#2E7D32'},{cx:478,cy:98,r:14,fill:'#2E7D32'},
+    {cx:202,cy:204,r:12,fill:'#2E7D32'},{cx:488,cy:196,r:12,fill:'#2E7D32'},
+    {cx:235,cy:248,r:10,fill:'#a5d6a7'},{cx:458,cy:240,r:10,fill:'#a5d6a7'},
+    {cx:260,cy:120,r:10,fill:'#a5d6a7'},{cx:440,cy:116,r:10,fill:'#a5d6a7'},
+    {cx:275,cy:165,r:11,fill:'#d4a843'},{cx:430,cy:160,r:11,fill:'#d4a843'},
+  ];
+  nodes.forEach(function(d,i){
+    // rough 圆 + 高光椭圆
+    var nd = R.appendChild(rc.circle(d.cx,d.cy,d.r*2,{fill:d.fill,fillStyle:'hachure',hachureGap:3,fillWeight:1,roughness:2,bowing:1.5}));
+    var el = d3.select(nd).attr('opacity',0).attr('class','tree-node');
+    // 水彩高光
+    svg.append('ellipse').attr('cx',d.cx-2).attr('cy',d.cy-3).attr('rx',d.r*0.6).attr('ry',d.r*0.4)
+      .attr('fill','#ffffff').attr('opacity',0).attr('class','node-hl');
+    el.transition().delay(600+i*100).duration(700)
+      .attr('opacity',0.85)
+      .ease(d3.easeBackOut);
+    svg.selectAll('.node-hl').filter(function(_,j){return j===i})
+      .transition().delay(900+i*100).duration(500).attr('opacity',0.22);
+  });
+
+  // ---- CSS 交互叶片 ----
+  var cssLeaves = [
+    {cls:'bud',top:50,left:30},{cls:'bud',top:46,right:30},{cls:'bud',top:190,left:28},{cls:'bud',top:185,right:32},
+    {cls:'dark',top:66,left:22},{cls:'dark',top:62,right:22},{cls:'dark',top:96,left:38},{cls:'dark',top:92,right:38},
+    {cls:'dark',top:120,left:25},{cls:'dark',top:115,right:26},
+    {cls:'yel',top:230,left:33},{cls:'yel',top:225,right:35},
+  ];
+  cssLeaves.forEach(function(d,i){
+    var div = document.createElement('div');
+    div.className = 'hanging-leaf '+d.cls;
+    div.style.cssText = 'position:absolute;z-index:2;'+
+      (d.left!=null?'left:'+d.left+'%;':'right:'+d.right+'%;')+
+      'top:'+d.top+'px;'+
+      'animation-delay:'+(0.8+i*0.12)+'s;';
+    document.getElementById('treeStage').appendChild(div);
+  });
+
+  // 落叶
+  [1,2,3].forEach(function(i){
+    var div = document.createElement('div');
+    div.className = 'falling-leaf f'+i;
+    document.getElementById('treeStage').appendChild(div);
+  });
+
+})();
+</script>
+
+<script>
   (function(){
-    var d = new Date();
-    var y = d.getFullYear();
-    var m = String(d.getMonth()+1).padStart(2,'0');
-    var day = String(d.getDate()).padStart(2,'0');
-    document.getElementById('updatedDate').textContent = '最近浇水：'+y+'-'+m+'-'+day;
+    var d=new Date();
+    document.getElementById('updatedDate').textContent='最近浇水：'+d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   })();
 </script>
 </body>
