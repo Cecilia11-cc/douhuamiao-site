@@ -231,7 +231,7 @@ try {
   var stage = d3.select('#treeStage');
   var W = 1200, H = 1000;
   // 底部锚定：所有坐标基于 H 计算，画布变大树自动下移
-  var CX = W/2, GND = H*0.94, TRUNK_TOP = H*0.54, START_LEN = H*0.18;
+  var CX = W/2, GND = H*0.94, TRUNK_TOP = H*0.54, START_LEN = H*0.18, TRUNK_W = 22;
 
   var svg = stage.append('svg').attr('viewBox','0 0 '+W+' '+H).attr('style','overflow:visible');
   var defs = svg.append('defs');
