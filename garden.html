@@ -47,7 +47,7 @@
   .page-header .updated{display:inline-block;margin-top:0.6rem;font-size:0.8rem;color:var(--text-muted);background:var(--card-bg);padding:0.25rem 0.9rem;border-radius:var(--radius-full);border:1px solid var(--card-border);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 
   /* 树画布 */
-  .tree-stage{position:relative;width:100%;height:650px;margin:0 auto 0.2rem;overflow:visible}
+  .tree-stage{position:relative;width:100%;height:680px;margin:0 auto 0.2rem;overflow:visible}
   .tree-stage svg{width:100%;height:100%}
 
 
@@ -116,7 +116,7 @@
   .katex-display{overflow-x:auto;overflow-y:hidden;padding:0.3rem 0}
 
   @media(max-width:700px){
-    .tree-stage{height:500px}
+    .tree-stage{height:520px}
     .leaf-grid{grid-template-columns:1fr}
     .page-header h1{font-size:2.2rem}
     .legend{gap:0.7rem;font-size:0.75rem}
@@ -228,9 +228,9 @@
 // ===== D3 + Rough.js 手绘水彩树 =====
 (function(){
   var stage = d3.select('#treeStage');
-  var W = 1000, H = 650;
+  var W = 1000, H = 680;
 
-  var svg = stage.append('svg').attr('viewBox','0 0 '+W+' '+H);
+  var svg = stage.append('svg').attr('viewBox','0 0 '+W+' '+H).attr('style','overflow:visible');
   var defs = svg.append('defs');
 
   // ---- 水彩纸纹理滤镜 ----
@@ -264,7 +264,7 @@
   var rng = function(a,b){return a+Math.random()*(b-a);};
 
   // ---- 地面阴影 ----
-  svg.append('ellipse').attr('cx',500).attr('cy',635).attr('rx',240).attr('ry',22).attr('fill','url(#ground)');
+  svg.append('ellipse').attr('cx',500).attr('cy',665).attr('rx',240).attr('ry',22).attr('fill','url(#ground)');
 
   // ---- 树干（rough 路径，上细下粗） ----
   R.appendChild(rc.path('M486 625 Q484 520 490 400 Q492 360 494 340 L506 340 Q508 360 510 400 Q516 520 514 625 Z',
@@ -445,6 +445,25 @@
 
   // （CSS 叶片已移除——只保留 Rough.js 手绘叶片 + Canvas 飘落枯叶）
 
+  // ============ 连接线：树 → 下方分区 ============
+  // 三条藤蔓从树根区域向下延伸，指向三个展示区
+  var VINES = [
+    {x1:320,y1:650,x2:280,y2:690,color:'#3A7D29'},  // 左 → 核心书单
+    {x1:500,y1:655,x2:500,y2:695,color:'#B8F36B'},  // 中 → 可以试试
+    {x1:680,y1:650,x2:720,y2:690,color:'#F9C74F'},  // 右 → 正在过渡
+  ];
+  VINES.forEach(function(v){
+    R.appendChild(rc.curve(v.x1,v.y1,v.x1,v.y1+15,v.x2,v.y2-15,v.x2,v.y2,
+      {stroke:v.color,strokeWidth:1.5,roughness:2,bowing:2.5}));
+  });
+  // 藤蔓末端小叶片
+  VINES.forEach(function(v){
+    var g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('transform','translate('+v.x2+','+(v.y2+6)+') rotate('+rng(-40,-20)+')');
+    g.appendChild(rc.ellipse(0,0,8,5,{fill:v.color,fillStyle:'solid',roughness:1.5,bowing:1}));
+    R.appendChild(g);
+  });
+
   // ============ 页面图标手绘化 ============
   function roughIcon(el, fill, w, h, rot) {
     var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
@@ -466,6 +485,23 @@
     var sz = el.classList.contains('dark')?{w:8,h:10}:el.classList.contains('yellow')?{w:7,h:8}:{w:6,h:8};
     for (var k in ICON_COLORS) if (el.classList.contains(k)) roughIcon(el, ICON_COLORS[k], sz.w, sz.h, -40);
   });
+  // ============ 分区上方连接藤蔓 ============
+  var sectionColors = ['#3A7D29','#B8F36B','#F9C74F']; // 深绿→嫩绿→黄
+  document.querySelectorAll('.section-head').forEach(function(el,i){
+    var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('width','100%'); svg.setAttribute('height','24');
+    svg.style.cssText = 'display:block;margin-bottom:-4px;';
+    var rcV = rough.svg(svg, {options:{roughness:2,bowing:2.2}});
+    var cx = svg.getAttribute('width')==='100%'?200:parseInt(svg.getAttribute('width'))/2;
+    // 从顶部中央向上弯曲的小藤蔓
+    svg.setAttribute('viewBox','0 0 400 24');
+    svg.appendChild(rcV.curve(200,22,200,14,200,8,200,2,
+      {stroke:sectionColors[i]||'#7d6b5d',strokeWidth:1.5,roughness:2,bowing:2.5}));
+    svg.appendChild(rcV.ellipse(200,4,6,4,
+      {fill:sectionColors[i]||'#7d6b5d',fillStyle:'solid',roughness:1.5,bowing:1}));
+    el.parentNode.insertBefore(svg, el);
+  });
+
   // 纪念册压制叶片
   document.querySelectorAll('.specimen .pressed').forEach(function(el){
     var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
