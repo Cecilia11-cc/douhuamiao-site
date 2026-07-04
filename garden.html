@@ -226,7 +226,8 @@
 
 <script>
 // ===== D3 + Rough.js 手绘水彩树 =====
-(function(){
+window.addEventListener('DOMContentLoaded', function(){
+try {
   var stage = d3.select('#treeStage');
   var W = 1200, H = 1000;
   // 底部锚定：所有坐标基于 H 计算，画布变大树自动下移
@@ -517,7 +518,11 @@
     el.replaceWith(svg);
   });
 
-})();
+} catch(e) {
+  document.getElementById('treeStage').innerHTML = '<p style="color:red;padding:2rem;">Tree error: '+e.message+'</p>';
+  console.error(e);
+}
+});
 </script>
 
 <script>
