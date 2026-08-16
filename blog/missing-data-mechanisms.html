@@ -221,6 +221,23 @@
   .katex { font-size: 1.05em; }
   .katex-display { overflow-x: auto; overflow-y: hidden; padding: 0.3rem 0; }
 
+  /* ===== 目录侧栏（模仿 analysis-level-practice） ===== */
+  .page-layout{display:flex;gap:2rem;align-items:flex-start}
+  .sidebar{width:220px;flex-shrink:0;position:sticky;top:6rem}
+  .main-content{flex:1;min-width:0}
+  .tags{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem}
+  .tag{display:inline-block;padding:0.25rem 0.85rem;border-radius:var(--radius-sm);font-size:0.78rem;font-weight:600;color:#fff;background:var(--green-light)}
+  .tag.blue{background:var(--blue-light)}.tag.purple{background:var(--purple-light)}.tag.orange{background:var(--orange-light)}
+  .toc{background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:var(--radius-md);padding:1.3rem 1.2rem 1.1rem;margin-bottom:0;box-shadow:var(--shadow-sm);border:1px solid var(--card-border)}
+  .toc h3{margin-top:0;color:var(--green);font-size:0.92rem;font-weight:700;letter-spacing:0.04em;padding-bottom:0.6rem;margin-bottom:0.7rem;border-bottom:1px solid rgba(46,125,50,0.1)}
+  .toc h3::after{content:'';display:block;width:22px;height:1.5px;background:var(--green-light);margin-top:0.45rem;border-radius:1px}
+  .toc ol{padding-left:0.6rem;list-style:none;border-left:1px solid rgba(46,125,50,0.12)}
+  .toc li{padding:0.3rem 0 0.3rem 0.1rem;line-height:1.4;font-size:0.86rem;position:relative;display:flex;align-items:flex-start;gap:0.5rem}
+  .toc li::before{content:'';display:block;width:7px;height:9px;background:var(--green-light);border-radius:80% 0 80% 0;transform:rotate(-40deg);flex-shrink:0;opacity:0.45;transition:all var(--transition);margin-top:0.25rem}
+  .toc li:hover::before{opacity:0.85;transform:rotate(-40deg) scale(1.2);background:var(--green)}
+  .toc li:has(a.active)::before{opacity:1;background:var(--green);box-shadow:0 0 5px rgba(46,125,50,0.25)}
+  .toc a{color:var(--text);text-decoration:none;transition:color 0.2s}.toc a:hover{color:var(--green)}.toc a.active{color:var(--green);font-weight:700}
+
   footer {
     text-align: center;
     padding: 2rem 1rem 2.5rem;
@@ -239,6 +256,7 @@
     border-radius: 1px;
   }
 
+  @media(max-width:860px){.page-layout{flex-direction:column}.sidebar{width:100%;position:static}.toc ol{display:flex;flex-wrap:wrap;gap:0.3rem 1rem;padding-left:0;list-style:none;border-left:none}.toc li{font-size:0.85rem}.toc li::before{display:none}}
   @media (max-width: 600px) {
     .container { padding: 1rem 1rem 2rem; }
     .article-header h1 { font-size: 1.6rem; }
@@ -260,7 +278,19 @@
     <p class="date">2026 · 08 · 16</p>
     <h1>缺失数据的三种机制：MCAR、MAR 与 MNAR</h1>
     <p class="subtitle">从"数据为什么缺失"到"缺失与未观测变量的关系"</p>
+    <div class="tags"><span class="tag">统计学</span><span class="tag blue">缺失数据</span><span class="tag purple">MCAR/MAR/MNAR</span></div>
   </header>
+
+  <div class="page-layout">
+  <aside class="sidebar"><nav class="toc"><h3>本文地图</h3><ol>
+    <li><a href="#s1">完全随机缺失 MCAR</a></li>
+    <li><a href="#s2">随机缺失 MAR</a></li>
+    <li><a href="#s3">非随机缺失 MNAR</a></li>
+    <li><a href="#s4">三者的关系</a></li>
+    <li><a href="#s5">两个易混淆的问题</a></li>
+    <li><a href="#s6">实践中的判断</a></li>
+  </ol></nav></aside>
+  <div class="main-content">
 
   <!-- ===== 引言 ===== -->
   <section class="card">
@@ -269,7 +299,7 @@
   </section>
 
   <!-- ===== 三种机制 ===== -->
-  <section class="card">
+  <section id="s1" class="card">
     <h2>一、完全随机缺失 MCAR（Missing Completely At Random）</h2>
     <p><strong>缺失的发生与任何变量（无论是否观测到）都无关。</strong></p>
     <ul>
@@ -282,7 +312,7 @@
     <p>缺失与任何数据都无关。</p>
   </section>
 
-  <section class="card">
+  <section id="s2" class="card">
     <h2>二、随机缺失 MAR（Missing At Random）</h2>
     <p><strong>缺失与已观测到的变量有关，但与「缺失变量本身」无关（在控制观测变量后）。</strong></p>
     <p>关键词：<strong>"At Random" 是条件于已观测数据的</strong>，所以更准确的说法是"条件随机缺失"。</p>
@@ -295,7 +325,7 @@
     <p>一旦控制了已观测值，缺失就和「缺失值本身」无关了。</p>
   </section>
 
-  <section class="card">
+  <section id="s3" class="card">
     <h2>三、非随机缺失 MNAR（Missing Not At Random）</h2>
     <p><strong>缺失与「缺失变量本身」有关，即使控制了所有观测变量，这个关联仍然存在。</strong></p>
     <ul>
@@ -307,7 +337,7 @@
   </section>
 
   <!-- ===== 三者关系 ===== -->
-  <section class="card">
+  <section id="s4" class="card">
     <h2>四、三者的关系</h2>
     <table>
       <thead>
@@ -339,7 +369,7 @@
   </section>
 
   <!-- ===== 两个易混淆的问题 ===== -->
-  <section class="card">
+  <section id="s5" class="card">
     <h2>五、两个最容易绕晕的问题</h2>
 
     <h3>问题 1：偏倚、无偏代表到底是什么意思？</h3>
@@ -425,7 +455,7 @@
   </section>
 
   <!-- ===== 实践判断 ===== -->
-  <section class="card">
+  <section id="s6" class="card">
     <h2>六、实践中如何判断</h2>
     <ul>
       <li><strong>MCAR：</strong>可用 Little's MCAR 检验，或比较"有缺失组 vs 无缺失组"在各观测变量上是否有显著差异（无差异倾向 MCAR）。</li>
@@ -437,11 +467,15 @@
     <a href="../index.html" style="display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg, var(--green), var(--green-light));color:#fff;padding:0.6rem 1.6rem;border-radius:var(--radius-full);text-decoration:none;font-weight:600;font-size:0.95rem;box-shadow:0 2px 8px rgba(46,125,50,0.2);transition:all var(--transition);">← 返回首页</a>
   </p>
 
+  </div></div>
+
 </div>
 
 <footer>
   豆花喵的小栈 · 像树木一样安静生长 · 每次新发现，都会种在这片小森林里
 </footer>
+
+<script>(function(){var links=document.querySelectorAll('.toc a');var sections=[];for(var i=0;i<links.length;i++){var id=links[i].getAttribute('href').replace('#','');var el=document.getElementById(id);if(el)sections.push({link:links[i],section:el})}function onScroll(){var scrollY=window.scrollY+120;var current=null;for(var i=0;i<sections.length;i++){if(sections[i].section.offsetTop<=scrollY)current=sections[i].link}for(var j=0;j<links.length;j++)links[j].classList.remove('active');if(current)current.classList.add('active')}window.addEventListener('scroll',onScroll,{passive:true});onScroll()})();</script>
 
 </body>
 </html>
